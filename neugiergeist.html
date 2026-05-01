@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Neugiergeist">
+<title>Neugiergeist</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --ink: #1a1a18;
+    --paper: #f5f0e8;
+    --accent: #c8571a;
+    --muted: #8a8478;
+    --surface: #ede8de;
+    --border: #d4cec2;
+    --green: #4a7c59;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 3rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 10vw, 3rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .header h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .header p {
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .card {
+    width: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .card label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .api-row { display: flex; gap: 8px; }
+
+  input[type="password"], input[type="text"] {
+    flex: 1;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 0.65rem 1rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn:active { background: var(--accent); }
+
+  .key-status { margin-top: 0.5rem; font-size: 0.75rem; color: var(--muted); }
+  .key-status.ok { color: var(--green); }
+
+  .conversation {
+    width: 100%;
+    min-height: 260px;
+    max-height: 42vh;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .empty-state p {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .msg { display: flex; flex-direction: column; gap: 0.2rem; }
+
+  .msg-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .msg.user .msg-label { text-align: right; color: var(--accent); }
+
+  .msg-bubble {
+    background: var(--surface);
+    border-radius: 10px 10px 10px 2px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    max-width: 90%;
+  }
+
+  .msg.user .msg-bubble {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 10px 10px 2px 10px;
+    align-self: flex-end;
+  }
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .mic-btn {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .mic-btn:active { transform: scale(0.95); }
+
+  .mic-btn.listening {
+    border-color: var(--accent);
+    background: var(--accent);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .mic-btn.speaking {
+    border-color: var(--green);
+    background: var(--green);
+  }
+
+  .mic-btn.thinking {
+    border-color: var(--muted);
+    background: var(--surface);
+  }
+
+  .mic-icon { width: 30px; height: 30px; fill: var(--ink); transition: fill 0.2s; }
+  .mic-btn.listening .mic-icon,
+  .mic-btn.speaking .mic-icon { fill: white; }
+
+  .thinking-icon { display: none; }
+  .mic-btn.thinking .mic-icon { display: none; }
+  .mic-btn.thinking .thinking-icon { display: flex; gap: 4px; align-items: center; }
+  .thinking-icon span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted);
+    animation: blink 1.2s infinite;
+  }
+  .thinking-icon span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-icon span:nth-child(3) { animation-delay: 0.4s; }
+
+  .status-text {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    min-height: 1.2em;
+    text-align: center;
+  }
+
+  .status-text.active { color: var(--accent); }
+  .status-text.speaking { color: var(--green); }
+
+  .stop-btn {
+    padding: 0.4rem 1.4rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+    touch-action: manipulation;
+  }
+
+  .stop-btn.visible { display: block; }
+  .stop-btn:active { color: var(--accent); border-color: var(--accent); }
+
+  .error-box {
+    width: 100%;
+    background: #fef2f0;
+    border: 1px solid #f5c6bb;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    color: var(--accent);
+    display: none;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .error-box.visible { display: block; }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(200,87,26,0.3); }
+    50% { box-shadow: 0 0 0 14px rgba(200,87,26,0); }
+  }
+
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.2; }
+    40% { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Neugier<em>geist</em></h1>
+  <p>Dein deutschsprachiger Gesprächspartner</p>
+</div>
+
+<div class="card" id="apiSetup">
+  <label>Anthropic API Key</label>
+  <div class="api-row">
+    <input type="password" id="apiKey" placeholder="sk-ant-..." />
+    <button class="btn" onclick="saveKey()">Speichern</button>
+  </div>
+  <div class="key-status" id="keyStatus">Kein Key gespeichert</div>
+</div>
+
+<div class="conversation" id="conversation">
+  <div class="empty-state" id="emptyState">
+    <p>Drücke den Knopf<br>und beginne zu sprechen.</p>
+  </div>
+</div>
+
+<div class="error-box" id="errorBox"></div>
+
+<div class="controls">
+  <button class="mic-btn" id="micBtn" onclick="toggleListening()">
+    <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm6 9a1 1 0 0 1 2 0 8 8 0 0 1-7 7.93V20h2a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2h2v-2.07A8 8 0 0 1 4 10a1 1 0 0 1 2 0 6 6 0 0 0 12 0z"/>
+    </svg>
+    <div class="thinking-icon">
+      <span></span><span></span><span></span>
+    </div>
+  </button>
+  <div class="status-text" id="statusText">Bereit</div>
+  <button class="stop-btn" id="stopBtn" onclick="stopSpeaking()">Stopp</button>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `Du bist ein neugieriger, intelligenter Gesprächspartner. Du sprichst ausschließlich Deutsch.
+Dein Ziel ist es, dem Nutzer dabei zu helfen, sein Allgemeinwissen zu erweitern — durch lebhafte, informative Gespräche über Naturwissenschaften, Geschichte, Philosophie, Wirtschaft und alles dazwischen.
+Halte deine Antworten gesprächig und prägnant (2-4 Sätze), damit sie sich gut zum Vorlesen eignen.
+Stelle am Ende oft eine Gegenfrage, um das Gespräch in Gang zu halten.
+Sei direkt, präzise und zeige echte Begeisterung für Ideen.`;
+
+let apiKey = localStorage.getItem('ng_key') || '';
+let messages = [];
+let recognition = null;
+let isListening = false;
+let isSpeaking = false;
+let currentUtterance = null;
+const synth = window.speechSynthesis;
+
+window.onload = () => {
+  if (apiKey) {
+    document.getElementById('keyStatus').textContent = '✓ Key geladen';
+    document.getElementById('keyStatus').className = 'key-status ok';
+  }
+  // preload voices
+  synth.getVoices();
+};
+
+function saveKey() {
+  const val = document.getElementById('apiKey').value.trim();
+  if (!val.startsWith('sk-')) {
+    showError('Bitte einen gültigen Anthropic API Key eingeben (beginnt mit sk-ant-)');
+    return;
+  }
+  apiKey = val;
+  localStorage.setItem('ng_key', val);
+  document.getElementById('keyStatus').textContent = '✓ Key gespeichert';
+  document.getElementById('keyStatus').className = 'key-status ok';
+  document.getElementById('apiKey').value = '';
+  hideError();
+}
+
+function toggleListening() {
+  if (isSpeaking) { stopSpeaking(); return; }
+  if (!apiKey) { showError('Bitte zuerst deinen Anthropic API Key eingeben.'); return; }
+  if (isListening) {
+    recognition && recognition.stop();
+    isListening = false;
+    setMic('idle');
+    setStatus('Bereit', '');
+    return;
+  }
+  startListening();
+}
+
+function startListening() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    showError('Web Speech API nicht unterstützt. Bitte Chrome verwenden.');
+    return;
+  }
+  recognition = new SR();
+  recognition.lang = 'de-DE';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.continuous = false;
+
+  recognition.onstart = () => {
+    isListening = true;
+    setMic('listening');
+    setStatus('Höre zu…', 'active');
+    hideError();
+  };
+
+  recognition.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    isListening = false;
+    addMsg('user', text);
+    setMic('thinking');
+    setStatus('Denkt nach…', '');
+    askClaude(text);
+  };
+
+  recognition.onerror = (e) => {
+    isListening = false;
+    setMic('idle');
+    if (e.error === 'not-allowed') {
+      showError('Mikrofon-Zugriff verweigert. Tippe oben in Chrome auf das Symbol links neben der URL → Mikrofon → Erlauben.');
+    } else if (e.error === 'no-speech') {
+      setStatus('Bereit', '');
+    } else {
+      showError('Fehler: ' + e.error);
+    }
+  };
+
+  recognition.onend = () => {
+    if (isListening) { isListening = false; setMic('idle'); setStatus('Bereit', ''); }
+  };
+
+  try { recognition.start(); }
+  catch(e) { showError('Mikrofon konnte nicht gestartet werden: ' + e.message); }
+}
+
+async function askClaude(userText) {
+  messages.push({ role: 'user', content: userText });
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 400,
+        system: SYSTEM_PROMPT,
+        messages: messages
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'API Fehler ' + res.status);
+    }
+    const data = await res.json();
+    const reply = data.content[0].text;
+    messages.push({ role: 'assistant', content: reply });
+    addMsg('assistant', reply);
+    speak(reply);
+  } catch(e) {
+    setMic('idle');
+    setStatus('Bereit', '');
+    showError('Fehler: ' + e.message);
+  }
+}
+
+function speak(text) {
+  synth.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'de-DE';
+  utt.rate = 1.0;
+  utt.pitch = 1.0;
+
+  const voices = synth.getVoices();
+  const deVoice = voices.find(v => v.lang.startsWith('de') && v.localService)
+                || voices.find(v => v.lang.startsWith('de'));
+  if (deVoice) utt.voice = deVoice;
+
+  utt.onstart = () => {
+    isSpeaking = true;
+    setMic('speaking');
+    setStatus('Spricht…', 'speaking');
+    document.getElementById('stopBtn').classList.add('visible');
+  };
+
+  utt.onend = utt.onerror = () => {
+    isSpeaking = false;
+    setMic('idle');
+    setStatus('Bereit', '');
+    document.getElementById('stopBtn').classList.remove('visible');
+  };
+
+  currentUtterance = utt;
+  synth.speak(utt);
+}
+
+function stopSpeaking() {
+  synth.cancel();
+  isSpeaking = false;
+  setMic('idle');
+  setStatus('Bereit', '');
+  document.getElementById('stopBtn').classList.remove('visible');
+}
+
+function addMsg(role, text) {
+  const conv = document.getElementById('conversation');
+  const empty = document.getElementById('emptyState');
+  if (empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="msg-label">${role === 'user' ? 'Du' : 'Neugiergeist'}</div>
+    <div class="msg-bubble">${text}</div>`;
+  conv.appendChild(div);
+  conv.scrollTop = conv.scrollHeight;
+}
+
+function setMic(state) {
+  document.getElementById('micBtn').className = 'mic-btn' + (state !== 'idle' ? ' ' + state : '');
+}
+
+function setStatus(text, cls) {
+  const el = document.getElementById('statusText');
+  el.textContent = text;
+  el.className = 'status-text' + (cls ? ' ' + cls : '');
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorBox');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function hideError() {
+  document.getElementById('errorBox').classList.remove('visible');
+}
+
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.onvoiceschanged = () => {};
+}
+</script>
+</body>
+</html>
