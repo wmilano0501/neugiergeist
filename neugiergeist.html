@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
+ 
   :root {
     --ink: #1a1a18;
     --paper: #f5f0e8;
@@ -21,7 +21,7 @@
     --border: #d4cec2;
     --green: #4a7c59;
   }
-
+ 
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--paper);
@@ -34,12 +34,12 @@
     max-width: 480px;
     margin: 0 auto;
   }
-
+ 
   .header {
     text-align: center;
     margin-bottom: 2rem;
   }
-
+ 
   .header h1 {
     font-family: 'DM Serif Display', serif;
     font-size: clamp(2.2rem, 10vw, 3rem);
@@ -47,12 +47,12 @@
     letter-spacing: -0.02em;
     line-height: 1.1;
   }
-
+ 
   .header h1 em {
     font-style: italic;
     color: var(--accent);
   }
-
+ 
   .header p {
     margin-top: 0.4rem;
     font-size: 0.75rem;
@@ -61,7 +61,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-
+ 
   .card {
     width: 100%;
     background: white;
@@ -70,7 +70,7 @@
     padding: 1.2rem;
     margin-bottom: 1rem;
   }
-
+ 
   .card label {
     display: block;
     font-size: 0.7rem;
@@ -79,9 +79,9 @@
     color: var(--muted);
     margin-bottom: 0.5rem;
   }
-
+ 
   .api-row { display: flex; gap: 8px; }
-
+ 
   input[type="password"], input[type="text"] {
     flex: 1;
     padding: 0.65rem 0.8rem;
@@ -95,9 +95,9 @@
     transition: border-color 0.2s;
     -webkit-appearance: none;
   }
-
+ 
   input:focus { border-color: var(--accent); }
-
+ 
   .btn {
     padding: 0.65rem 1rem;
     background: var(--ink);
@@ -110,12 +110,12 @@
     transition: background 0.2s;
     white-space: nowrap;
   }
-
+ 
   .btn:active { background: var(--accent); }
-
+ 
   .key-status { margin-top: 0.5rem; font-size: 0.75rem; color: var(--muted); }
   .key-status.ok { color: var(--green); }
-
+ 
   .conversation {
     width: 100%;
     min-height: 260px;
@@ -131,14 +131,14 @@
     gap: 0.9rem;
     -webkit-overflow-scrolling: touch;
   }
-
+ 
   .empty-state {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-
+ 
   .empty-state p {
     font-family: 'DM Serif Display', serif;
     font-style: italic;
@@ -147,18 +147,18 @@
     text-align: center;
     line-height: 1.6;
   }
-
+ 
   .msg { display: flex; flex-direction: column; gap: 0.2rem; }
-
+ 
   .msg-label {
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--muted);
   }
-
+ 
   .msg.user .msg-label { text-align: right; color: var(--accent); }
-
+ 
   .msg-bubble {
     background: var(--surface);
     border-radius: 10px 10px 10px 2px;
@@ -167,14 +167,14 @@
     line-height: 1.55;
     max-width: 90%;
   }
-
+ 
   .msg.user .msg-bubble {
     background: var(--ink);
     color: var(--paper);
     border-radius: 10px 10px 2px 10px;
     align-self: flex-end;
   }
-
+ 
   .controls {
     display: flex;
     flex-direction: column;
@@ -182,7 +182,7 @@
     gap: 0.8rem;
     margin-top: 0.5rem;
   }
-
+ 
   .mic-btn {
     width: 88px;
     height: 88px;
@@ -197,29 +197,29 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-
+ 
   .mic-btn:active { transform: scale(0.95); }
-
+ 
   .mic-btn.listening {
     border-color: var(--accent);
     background: var(--accent);
     animation: pulse 1.5s ease-in-out infinite;
   }
-
+ 
   .mic-btn.speaking {
     border-color: var(--green);
     background: var(--green);
   }
-
+ 
   .mic-btn.thinking {
     border-color: var(--muted);
     background: var(--surface);
   }
-
+ 
   .mic-icon { width: 30px; height: 30px; fill: var(--ink); transition: fill 0.2s; }
   .mic-btn.listening .mic-icon,
   .mic-btn.speaking .mic-icon { fill: white; }
-
+ 
   .thinking-icon { display: none; }
   .mic-btn.thinking .mic-icon { display: none; }
   .mic-btn.thinking .thinking-icon { display: flex; gap: 4px; align-items: center; }
@@ -230,7 +230,7 @@
   }
   .thinking-icon span:nth-child(2) { animation-delay: 0.2s; }
   .thinking-icon span:nth-child(3) { animation-delay: 0.4s; }
-
+ 
   .status-text {
     font-size: 0.75rem;
     color: var(--muted);
@@ -239,10 +239,10 @@
     min-height: 1.2em;
     text-align: center;
   }
-
+ 
   .status-text.active { color: var(--accent); }
   .status-text.speaking { color: var(--green); }
-
+ 
   .stop-btn {
     padding: 0.4rem 1.4rem;
     border: 1px solid var(--border);
@@ -256,10 +256,10 @@
     display: none;
     touch-action: manipulation;
   }
-
+ 
   .stop-btn.visible { display: block; }
   .stop-btn:active { color: var(--accent); border-color: var(--accent); }
-
+ 
   .error-box {
     width: 100%;
     background: #fef2f0;
@@ -272,14 +272,14 @@
     margin-bottom: 0.5rem;
     line-height: 1.5;
   }
-
+ 
   .error-box.visible { display: block; }
-
+ 
   @keyframes pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(200,87,26,0.3); }
     50% { box-shadow: 0 0 0 14px rgba(200,87,26,0); }
   }
-
+ 
   @keyframes blink {
     0%, 80%, 100% { opacity: 0.2; }
     40% { opacity: 1; }
@@ -287,12 +287,12 @@
 </style>
 </head>
 <body>
-
+ 
 <div class="header">
   <h1>Neugier<em>geist</em></h1>
   <p>Dein deutschsprachiger Gesprächspartner</p>
 </div>
-
+ 
 <div class="card" id="apiSetup">
   <label>Anthropic API Key</label>
   <div class="api-row">
@@ -301,15 +301,15 @@
   </div>
   <div class="key-status" id="keyStatus">Kein Key gespeichert</div>
 </div>
-
+ 
 <div class="conversation" id="conversation">
   <div class="empty-state" id="emptyState">
     <p>Drücke den Knopf<br>und beginne zu sprechen.</p>
   </div>
 </div>
-
+ 
 <div class="error-box" id="errorBox"></div>
-
+ 
 <div class="controls">
   <button class="mic-btn" id="micBtn" onclick="toggleListening()">
     <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -322,14 +322,14 @@
   <div class="status-text" id="statusText">Bereit</div>
   <button class="stop-btn" id="stopBtn" onclick="stopSpeaking()">Stopp</button>
 </div>
-
+ 
 <script>
 const SYSTEM_PROMPT = `Du bist ein neugieriger, intelligenter Gesprächspartner. Du sprichst ausschließlich Deutsch.
 Dein Ziel ist es, dem Nutzer dabei zu helfen, sein Allgemeinwissen zu erweitern — durch lebhafte, informative Gespräche über Naturwissenschaften, Geschichte, Philosophie, Wirtschaft und alles dazwischen.
 Halte deine Antworten gesprächig und prägnant (2-4 Sätze), damit sie sich gut zum Vorlesen eignen.
 Stelle am Ende oft eine Gegenfrage, um das Gespräch in Gang zu halten.
 Sei direkt, präzise und zeige echte Begeisterung für Ideen.`;
-
+ 
 let apiKey = localStorage.getItem('ng_key') || '';
 let messages = [];
 let recognition = null;
@@ -337,7 +337,7 @@ let isListening = false;
 let isSpeaking = false;
 let currentUtterance = null;
 const synth = window.speechSynthesis;
-
+ 
 window.onload = () => {
   if (apiKey) {
     document.getElementById('keyStatus').textContent = '✓ Key geladen';
@@ -346,7 +346,7 @@ window.onload = () => {
   // preload voices
   synth.getVoices();
 };
-
+ 
 function saveKey() {
   const val = document.getElementById('apiKey').value.trim();
   if (!val.startsWith('sk-')) {
@@ -360,7 +360,7 @@ function saveKey() {
   document.getElementById('apiKey').value = '';
   hideError();
 }
-
+ 
 function toggleListening() {
   if (isSpeaking) { stopSpeaking(); return; }
   if (!apiKey) { showError('Bitte zuerst deinen Anthropic API Key eingeben.'); return; }
@@ -373,7 +373,7 @@ function toggleListening() {
   }
   startListening();
 }
-
+ 
 function startListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
@@ -385,14 +385,14 @@ function startListening() {
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   recognition.continuous = false;
-
+ 
   recognition.onstart = () => {
     isListening = true;
     setMic('listening');
     setStatus('Höre zu…', 'active');
     hideError();
   };
-
+ 
   recognition.onresult = (e) => {
     const text = e.results[0][0].transcript;
     isListening = false;
@@ -401,7 +401,7 @@ function startListening() {
     setStatus('Denkt nach…', '');
     askClaude(text);
   };
-
+ 
   recognition.onerror = (e) => {
     isListening = false;
     setMic('idle');
@@ -413,15 +413,15 @@ function startListening() {
       showError('Fehler: ' + e.error);
     }
   };
-
+ 
   recognition.onend = () => {
     if (isListening) { isListening = false; setMic('idle'); setStatus('Bereit', ''); }
   };
-
+ 
   try { recognition.start(); }
   catch(e) { showError('Mikrofon konnte nicht gestartet werden: ' + e.message); }
 }
-
+ 
 async function askClaude(userText) {
   messages.push({ role: 'user', content: userText });
   try {
@@ -434,7 +434,7 @@ async function askClaude(userText) {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 400,
         system: SYSTEM_PROMPT,
         messages: messages
@@ -455,37 +455,43 @@ async function askClaude(userText) {
     showError('Fehler: ' + e.message);
   }
 }
-
+ 
 function speak(text) {
   synth.cancel();
   const utt = new SpeechSynthesisUtterance(text);
   utt.lang = 'de-DE';
   utt.rate = 1.0;
   utt.pitch = 1.0;
-
+ 
   const voices = synth.getVoices();
   const deVoice = voices.find(v => v.lang.startsWith('de') && v.localService)
                 || voices.find(v => v.lang.startsWith('de'));
   if (deVoice) utt.voice = deVoice;
-
+ 
   utt.onstart = () => {
     isSpeaking = true;
     setMic('speaking');
     setStatus('Spricht…', 'speaking');
     document.getElementById('stopBtn').classList.add('visible');
   };
-
-  utt.onend = utt.onerror = () => {
+ 
+  utt.onend = () => {
+    isSpeaking = false;
+    document.getElementById('stopBtn').classList.remove('visible');
+    setTimeout(() => startListening(), 400);
+  };
+ 
+  utt.onerror = () => {
     isSpeaking = false;
     setMic('idle');
     setStatus('Bereit', '');
     document.getElementById('stopBtn').classList.remove('visible');
   };
-
+ 
   currentUtterance = utt;
   synth.speak(utt);
 }
-
+ 
 function stopSpeaking() {
   synth.cancel();
   isSpeaking = false;
@@ -493,7 +499,7 @@ function stopSpeaking() {
   setStatus('Bereit', '');
   document.getElementById('stopBtn').classList.remove('visible');
 }
-
+ 
 function addMsg(role, text) {
   const conv = document.getElementById('conversation');
   const empty = document.getElementById('emptyState');
@@ -505,27 +511,27 @@ function addMsg(role, text) {
   conv.appendChild(div);
   conv.scrollTop = conv.scrollHeight;
 }
-
+ 
 function setMic(state) {
   document.getElementById('micBtn').className = 'mic-btn' + (state !== 'idle' ? ' ' + state : '');
 }
-
+ 
 function setStatus(text, cls) {
   const el = document.getElementById('statusText');
   el.textContent = text;
   el.className = 'status-text' + (cls ? ' ' + cls : '');
 }
-
+ 
 function showError(msg) {
   const el = document.getElementById('errorBox');
   el.textContent = msg;
   el.classList.add('visible');
 }
-
+ 
 function hideError() {
   document.getElementById('errorBox').classList.remove('visible');
 }
-
+ 
 if (typeof speechSynthesis !== 'undefined') {
   speechSynthesis.onvoiceschanged = () => {};
 }
