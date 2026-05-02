@@ -482,7 +482,7 @@ async function archiveConversation() {
     const summary = data.content[0].text;
     await navigator.clipboard.writeText(summary);
     btn.textContent = '✓ Kopiert — Archiv öffnet sich…';
-    setTimeout(() => window.open('https://claude.ai/chat/dfca58c1-a89c-4354-8b27-aa8389fce211', '_blank'), 800);
+    setTimeout(() => window.open('https://claude.ai/chat/36e30c18-9d28-438c-a143-78f8cc15cee0', '_blank'), 800);
 
   } catch(e) {
     showError('Archivierung fehlgeschlagen: ' + e.message);
