@@ -317,7 +317,24 @@
     text-align: right;
   }
 
-  .memory-badge {
+  .archive-btn {
+    margin-top: 0.3rem;
+    padding: 0.5rem 1.4rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    touch-action: manipulation;
+    display: none;
+  }
+
+  .archive-btn.visible { display: block; }
+  .archive-btn:active { color: var(--accent); border-color: var(--accent); }
+  .archive-btn.loading { opacity: 0.6; pointer-events: none; }
     font-size: 0.7rem;
     color: var(--green);
     text-align: center;
@@ -376,6 +393,7 @@
     <span class="speed-val" id="speedVal">1.0×</span>
   </div>
   <div class="memory-badge" id="memoryBadge"></div>
+  <button class="archive-btn" id="archiveBtn" onclick="archiveConversation()">✦ In Claude archivieren</button>
 </div>
 
 <script>
@@ -421,6 +439,8 @@ function updateSpeed(val) {
 function updateMemoryBadge() {
   const count = Math.floor(messages.length / 2);
   document.getElementById('memoryBadge').textContent = count > 0 ? `${count} Gespräche gespeichert` : '';
+  const archiveBtn = document.getElementById('archiveBtn');
+  if (messages.length >= 2) archiveBtn.classList.add('visible');
 }
 
 function saveHistory() {
@@ -429,6 +449,46 @@ function saveHistory() {
   messages = trimmed;
   localStorage.setItem('ng_history', JSON.stringify(messages));
   updateMemoryBadge();
+}
+
+async function archiveConversation() {
+  const btn = document.getElementById('archiveBtn');
+  btn.textContent = '⏳ Zusammenfassung wird erstellt…';
+  btn.classList.add('loading');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 600,
+        messages: [
+          ...messages,
+          {
+            role: 'user',
+            content: 'Bitte fasse unser heutiges Gespräch in 3-5 Sätzen zusammen. Beginne mit "Gesprächsarchiv Neugiergeist:" und nenne die wichtigsten Themen und Erkenntnisse. Schreibe auf Deutsch.'
+          }
+        ]
+      })
+    });
+
+    const data = await res.json();
+    const summary = data.content[0].text;
+    const claudeUrl = 'https://claude.ai/new?q=' + encodeURIComponent(summary);
+    window.open(claudeUrl, '_blank');
+
+  } catch(e) {
+    showError('Archivierung fehlgeschlagen: ' + e.message);
+  }
+
+  btn.textContent = '✦ In Claude archivieren';
+  btn.classList.remove('loading');
 }
 
 function saveKey() {
