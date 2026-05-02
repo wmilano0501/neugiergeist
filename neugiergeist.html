@@ -480,8 +480,9 @@ async function archiveConversation() {
 
     const data = await res.json();
     const summary = data.content[0].text;
-    const claudeUrl = 'https://claude.ai/new?q=' + encodeURIComponent(summary);
-    window.open(claudeUrl, '_blank');
+    await navigator.clipboard.writeText(summary);
+    btn.textContent = '✓ Kopiert — Claude öffnet sich…';
+    setTimeout(() => window.open('https://claude.ai/new', '_blank'), 800);
 
   } catch(e) {
     showError('Archivierung fehlgeschlagen: ' + e.message);
