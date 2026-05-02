@@ -481,8 +481,8 @@ async function archiveConversation() {
     const data = await res.json();
     const summary = data.content[0].text;
     await navigator.clipboard.writeText(summary);
-    btn.textContent = '✓ Kopiert — Claude öffnet sich…';
-    setTimeout(() => window.open('https://claude.ai/new', '_blank'), 800);
+    btn.textContent = '✓ Kopiert — Archiv öffnet sich…';
+    setTimeout(() => window.open('https://claude.ai/chat/dfca58c1-a89c-4354-8b27-aa8389fce211', '_blank'), 800);
 
   } catch(e) {
     showError('Archivierung fehlgeschlagen: ' + e.message);
@@ -580,8 +580,9 @@ async function askClaude(userText) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
-        max_tokens: 400,
+        max_tokens: 600,
         system: SYSTEM_PROMPT,
+        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }],
         messages: messages
       })
     });
@@ -590,8 +591,13 @@ async function askClaude(userText) {
       throw new Error(err.error?.message || 'API Fehler ' + res.status);
     }
     const data = await res.json();
-    const reply = data.content[0].text;
-    messages.push({ role: 'assistant', content: reply });
+    // extract text from content blocks (web search may add multiple blocks)
+    const reply = data.content
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join(' ')
+      .trim();
+    messages.push({ role: 'assistant', content: data.content });
     saveHistory();
     addMsg('assistant', reply);
     speak(reply);
