@@ -13,404 +13,81 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
   :root {
-    --ink: #1a1a18;
-    --paper: #f5f0e8;
-    --accent: #c8571a;
-    --muted: #8a8478;
-    --surface: #ede8de;
-    --border: #d4cec2;
-    --green: #4a7c59;
+    --ink: #1a1a18; --paper: #f5f0e8; --accent: #c8571a;
+    --muted: #8a8478; --surface: #ede8de; --border: #d4cec2; --green: #4a7c59;
   }
-
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem 3rem;
-    max-width: 480px;
-    margin: 0 auto;
+    font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 2rem 1rem 3rem; max-width: 480px; margin: 0 auto;
   }
-
   .header { text-align: center; margin-bottom: 2rem; }
-
-  .header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.2rem, 10vw, 3rem);
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
+  .header h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2.2rem, 10vw, 3rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; }
   .header h1 em { font-style: italic; color: var(--accent); }
-
-  .header p {
-    margin-top: 0.4rem;
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-weight: 300;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .platform-badge {
-    margin-top: 0.3rem;
-    font-size: 0.68rem;
-    color: var(--muted);
-    opacity: 0.7;
-  }
-
-  .card {
-    width: 100%;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.2rem;
-    margin-bottom: 1rem;
-  }
-
-  .card label {
-    display: block;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    margin-bottom: 0.5rem;
-  }
-
+  .header p { margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase; }
+  .platform-badge { margin-top: 0.3rem; font-size: 0.68rem; color: var(--muted); opacity: 0.7; }
+  .card { width: 100%; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; margin-bottom: 1rem; }
+  .card label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; }
   .api-row { display: flex; gap: 8px; }
-
   input[type="password"], input[type="text"] {
-    flex: 1;
-    padding: 0.65rem 0.8rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    background: var(--paper);
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
+    flex: 1; padding: 0.65rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--paper);
+    color: var(--ink); outline: none; transition: border-color 0.2s; -webkit-appearance: none;
   }
-
   input:focus { border-color: var(--accent); }
-
-  .btn {
-    padding: 0.65rem 1rem;
-    background: var(--ink);
-    color: var(--paper);
-    border: none;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    white-space: nowrap;
-  }
-
+  .btn { padding: 0.65rem 1rem; background: var(--ink); color: var(--paper); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
   .btn:active { background: var(--accent); }
-
   .key-status { margin-top: 0.5rem; font-size: 0.75rem; color: var(--muted); }
   .key-status.ok { color: var(--green); }
-
-  .conversation {
-    width: 100%;
-    min-height: 260px;
-    max-height: 42vh;
-    overflow-y: auto;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .empty-state {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .empty-state p {
-    font-family: 'DM Serif Display', serif;
-    font-style: italic;
-    font-size: 1.05rem;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.6;
-  }
-
+  .conversation { width: 100%; min-height: 260px; max-height: 42vh; overflow-y: auto; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.9rem; -webkit-overflow-scrolling: touch; }
+  .empty-state { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .empty-state p { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 1.05rem; color: var(--muted); text-align: center; line-height: 1.6; }
   .msg { display: flex; flex-direction: column; gap: 0.2rem; }
-
-  .msg-label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-  }
-
+  .msg-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
   .msg.user .msg-label { text-align: right; color: var(--accent); }
-
-  .msg-bubble {
-    background: var(--surface);
-    border-radius: 10px 10px 10px 2px;
-    padding: 0.7rem 0.9rem;
-    font-size: 0.9rem;
-    line-height: 1.55;
-    max-width: 90%;
-  }
-
-  .msg.user .msg-bubble {
-    background: var(--ink);
-    color: var(--paper);
-    border-radius: 10px 10px 2px 10px;
-    align-self: flex-end;
-  }
-
-  .controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.8rem;
-    margin-top: 0.5rem;
-  }
-
-  .mic-btn {
-    width: 88px;
-    height: 88px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    position: relative;
-  }
-
+  .msg-bubble { background: var(--surface); border-radius: 10px 10px 10px 2px; padding: 0.7rem 0.9rem; font-size: 0.9rem; line-height: 1.55; max-width: 90%; }
+  .msg.user .msg-bubble { background: var(--ink); color: var(--paper); border-radius: 10px 10px 2px 10px; align-self: flex-end; }
+  .controls { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; margin-top: 0.5rem; }
+  .mic-btn { width: 88px; height: 88px; border-radius: 50%; border: 2px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; position: relative; }
   .mic-btn:active { transform: scale(0.95); }
-
-  .mic-btn.listening {
-    border-color: var(--accent);
-    background: var(--accent);
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  .mic-btn.speaking {
-    border-color: var(--green);
-    background: var(--green);
-  }
-
-  .mic-btn.thinking {
-    border-color: var(--muted);
-    background: var(--surface);
-  }
-
-  /* Countdown ring overlay */
-  .countdown-ring {
-    position: absolute;
-    top: -6px; left: -6px;
-    width: 100px; height: 100px;
-    pointer-events: none;
-    display: none;
-  }
-
+  .mic-btn.listening { border-color: var(--accent); background: var(--accent); animation: pulse 1.5s ease-in-out infinite; }
+  .mic-btn.speaking { border-color: var(--green); background: var(--green); }
+  .mic-btn.thinking { border-color: var(--muted); background: var(--surface); }
+  .countdown-ring { position: absolute; top: -6px; left: -6px; width: 100px; height: 100px; pointer-events: none; display: none; }
   .countdown-ring.visible { display: block; }
-
-  .countdown-ring circle {
-    fill: none;
-    stroke: var(--accent);
-    stroke-width: 3;
-    stroke-dasharray: 283;
-    stroke-dashoffset: 283;
-    stroke-linecap: round;
-    transform-origin: center;
-    transform: rotate(-90deg);
-    transition: stroke-dashoffset 0.1s linear;
-  }
-
+  .countdown-ring circle { fill: none; stroke: var(--accent); stroke-width: 3; stroke-dasharray: 283; stroke-dashoffset: 283; stroke-linecap: round; transform-origin: center; transform: rotate(-90deg); transition: stroke-dashoffset 0.1s linear; }
   .mic-icon { width: 30px; height: 30px; fill: var(--ink); transition: fill 0.2s; }
-  .mic-btn.listening .mic-icon,
-  .mic-btn.speaking .mic-icon { fill: white; }
-
+  .mic-btn.listening .mic-icon, .mic-btn.speaking .mic-icon { fill: white; }
   .thinking-icon { display: none; }
   .mic-btn.thinking .mic-icon { display: none; }
   .mic-btn.thinking .thinking-icon { display: flex; gap: 4px; align-items: center; }
-  .thinking-icon span {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--muted);
-    animation: blink 1.2s infinite;
-  }
+  .thinking-icon span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite; }
   .thinking-icon span:nth-child(2) { animation-delay: 0.2s; }
   .thinking-icon span:nth-child(3) { animation-delay: 0.4s; }
-
-  .status-text {
-    font-size: 0.75rem;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    min-height: 1.2em;
-    text-align: center;
-  }
-
+  .status-text { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; min-height: 1.2em; text-align: center; }
   .status-text.active { color: var(--accent); }
   .status-text.speaking { color: var(--green); }
-
-  .stop-btn {
-    padding: 0.4rem 1.4rem;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.75rem;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: none;
-    touch-action: manipulation;
-  }
-
+  .stop-btn { padding: 0.4rem 1.4rem; border: 1px solid var(--border); border-radius: 20px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: var(--muted); cursor: pointer; transition: all 0.2s; display: none; touch-action: manipulation; }
   .stop-btn.visible { display: block; }
   .stop-btn:active { color: var(--accent); border-color: var(--accent); }
-
-  .error-box {
-    width: 100%;
-    background: #fef2f0;
-    border: 1px solid #f5c6bb;
-    border-radius: 10px;
-    padding: 0.75rem 1rem;
-    font-size: 0.82rem;
-    color: var(--accent);
-    display: none;
-    margin-bottom: 0.5rem;
-    line-height: 1.5;
-  }
-
+  .error-box { width: 100%; background: #fef2f0; border: 1px solid #f5c6bb; border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.82rem; color: var(--accent); display: none; margin-bottom: 0.5rem; line-height: 1.5; }
   .error-box.visible { display: block; }
-
-  .settings-row {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-top: 0.5rem;
-  }
-
-  .settings-row label {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    white-space: nowrap;
-  }
-
-  .speed-slider {
-    flex: 1;
-    -webkit-appearance: none;
-    height: 3px;
-    border-radius: 2px;
-    background: var(--border);
-    outline: none;
-  }
-
-  .speed-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--ink);
-    cursor: pointer;
-  }
-
-  .speed-val {
-    font-size: 0.78rem;
-    color: var(--ink);
-    font-weight: 500;
-    min-width: 2.5rem;
-    text-align: right;
-  }
-
-  /* Silence timeout selector */
-  .silence-row {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-top: 0.2rem;
-  }
-
-  .silence-row label {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    white-space: nowrap;
-  }
-
-  .silence-row select {
-    flex: 1;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.78rem;
-    background: var(--paper);
-    color: var(--ink);
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-  }
-
-  .memory-badge {
-    font-size: 0.7rem;
-    color: var(--green);
-    text-align: center;
-    margin-top: 0.3rem;
-  }
-
-  .archive-btn {
-    margin-top: 0.3rem;
-    padding: 0.5rem 1.4rem;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.78rem;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    touch-action: manipulation;
-    display: none;
-  }
-
+  .settings-row { width: 100%; display: flex; align-items: center; gap: 0.8rem; margin-top: 0.5rem; }
+  .settings-row label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); white-space: nowrap; }
+  .speed-slider { flex: 1; -webkit-appearance: none; height: 3px; border-radius: 2px; background: var(--border); outline: none; }
+  .speed-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); cursor: pointer; }
+  .speed-val { font-size: 0.78rem; color: var(--ink); font-weight: 500; min-width: 2.5rem; text-align: right; }
+  .silence-row { width: 100%; display: flex; align-items: center; gap: 0.8rem; margin-top: 0.2rem; }
+  .silence-row label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); white-space: nowrap; }
+  .silence-row select { flex: 1; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; background: var(--paper); color: var(--ink); outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; }
+  .memory-badge { font-size: 0.7rem; color: var(--green); text-align: center; margin-top: 0.3rem; }
+  .archive-btn { margin-top: 0.3rem; padding: 0.5rem 1.4rem; border: 1px solid var(--border); border-radius: 20px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.2s; touch-action: manipulation; display: none; }
   .archive-btn.visible { display: block; }
   .archive-btn:active { color: var(--accent); border-color: var(--accent); }
   .archive-btn.loading { opacity: 0.6; pointer-events: none; }
-
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(200,87,26,0.3); }
-    50% { box-shadow: 0 0 0 14px rgba(200,87,26,0); }
-  }
-
-  @keyframes blink {
-    0%, 80%, 100% { opacity: 0.2; }
-    40% { opacity: 1; }
-  }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(200,87,26,0.3); } 50% { box-shadow: 0 0 0 14px rgba(200,87,26,0); } }
+  @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
 </style>
 </head>
 <body>
@@ -452,13 +129,11 @@
   </button>
   <div class="status-text" id="statusText">Bereit</div>
   <button class="stop-btn" id="stopBtn" onclick="stopSpeaking()">Stopp</button>
-
   <div class="settings-row">
     <label>Tempo</label>
     <input type="range" class="speed-slider" id="speedSlider" min="0.6" max="1.8" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
     <span class="speed-val" id="speedVal">1.0×</span>
   </div>
-
   <div class="silence-row">
     <label>Pause</label>
     <select id="silenceSelect" onchange="updateSilenceTimeout(this.value)">
@@ -468,32 +143,64 @@
       <option value="10000">10 Sekunden</option>
     </select>
   </div>
-
   <div class="memory-badge" id="memoryBadge"></div>
   <button class="archive-btn" id="archiveBtn" onclick="archiveConversation()">✦ In Claude archivieren</button>
 </div>
 
 <script>
-// ── Platform Detection ──────────────────────────────────────────────────────
+// ── Platform Detection ───────────────────────────────────────────────────────
 const IS_ANDROID = /Android/i.test(navigator.userAgent);
 const IS_IOS = /iPad|iPhone|iPod/i.test(navigator.userAgent);
 const IS_MOBILE = IS_ANDROID || IS_IOS;
-
 document.getElementById('platformBadge').textContent =
-  IS_ANDROID ? '📱 Android-Modus' : IS_IOS ? '📱 iOS-Modus' : '🖥 Desktop-Modus';
+  IS_ANDROID ? '📱 Android' : IS_IOS ? '📱 iOS' : '🖥 Desktop';
 
-// ── Config ──────────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Du bist ein neugieriger, intelligenter Gesprächspartner. Du sprichst ausschließlich Deutsch.
-Dein Ziel ist es, dem Nutzer dabei zu helfen, sein Allgemeinwissen zu erweitern — durch lebhafte, informative Gespräche über Naturwissenschaften, Geschichte, Philosophie, Wirtschaft und alles dazwischen.
-Halte deine Antworten gesprächig und prägnant (2-4 Sätze), damit sie sich gut zum Vorlesen eignen.
-Stelle am Ende oft eine Gegenfrage, um das Gespräch in Gang zu halten.
-Sei direkt, präzise und zeige echte Begeisterung für Ideen.
-Wenn du Websuchen verwendest, nenne KEINE Quellen oder Zitate — integriere die Information direkt in deine Antwort.`;
+// ── System Prompt ────────────────────────────────────────────────────────────
+const SYSTEM_PROMPT = `Du bist Neugiergeist — ein kritischer, direkter und humorvoller Gesprächspartner für Max. Du sprichst ausschließlich Deutsch. Deine Antworten werden vorgelesen (Text-to-Speech), daher gelten folgende Regeln:
 
+WALKING MODE (immer aktiv):
+- Antworte in kurzer, natürlicher Prosa — keine Aufzählungen, keine Formatierung, keine Symbole
+- Maximal 2-3 Ideen pro Antwort, nummeriert wenn nötig
+- Komm sofort zum Punkt — kein Vorgeplänkel, kein Spiegeln der Frage
+- Optimiert zum Zuhören, nicht zum Lesen
+
+PERSÖNLICHKEIT & STIL:
+- Sei direkt, präzise und zeige echte Begeisterung für Ideen
+- Sei kritischer Sparringspartner — kein zustimmender Assistent
+- Benenne Denkfehler und Annahmen von Max offen
+- Priorisiere Faktengenauigkeit über Enthusiasmus
+- Stelle am Ende oft eine Gegenfrage, um das Gespräch am Laufen zu halten
+
+RÜCKFRAGEN (Clarify):
+- Stelle eine Rückfrage, wenn zusätzlicher Kontext deine Antwort deutlich verbessern würde
+- Nur eine Frage pro Mal — nie mehrere auf einmal
+
+PRÄZISION (Surgical Specificity):
+- Nutze Frameworks, Forschung, Daten, Autorennamen, Fakten wo relevant
+- Zerlege Ideen in Variablen und Muster
+- Biete verschiedene Perspektiven an
+
+ANTI-HALLUZINATION (immer aktiv):
+- Bei Fakten über Tech-Tools, APIs, aktuelle Ereignisse oder schnell ändernde Themen: sage explizit wenn du unsicher bist
+- Verwende Formulierungen wie "Ich bin mir nicht sicher, aber..." oder "Das solltest du verifizieren..."
+- Eine ehrlich unsichere Antwort ist immer besser als eine selbstsicher falsche
+- Erfinde keine API-Parameter, Feature-Namen, Preise oder Integrations-Claims
+
+THEMEN:
+- Naturwissenschaften, Geschichte, Geopolitik, Philosophie, Psychologie, Wirtschaft, Technologie
+- Max ist Banker in Deutschland (Frankfurt), handelt Optionen, betreibt eine Vermögensverwaltungs-GmbH, ist intellektuell neugierig mit Tiefgang
+
+VERBOTEN in Antworten:
+- Keine Markdown-Formatierung (kein **, keine #, keine - Listen)
+- Keine Quellenangaben oder Zitate beim Vorlesen
+- Kein Loben oder Schmeicheln ("Gute Frage!" etc.)
+- Keine langen Einleitungen`;
+
+// ── Config ───────────────────────────────────────────────────────────────────
 const MAX_HISTORY = 20;
-const CIRCUMFERENCE = 2 * Math.PI * 45; // ≈ 283 for r=45
+const CIRCUMFERENCE = 2 * Math.PI * 45;
 
-// ── State ───────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────
 let apiKey = localStorage.getItem('ng_key') || '';
 let messages = JSON.parse(localStorage.getItem('ng_history') || '[]');
 let recognition = null;
@@ -504,10 +211,9 @@ let speechRate = parseFloat(localStorage.getItem('ng_speed') || '1.0');
 let silenceTimeout = parseInt(localStorage.getItem('ng_silence') || '5000');
 let silenceTimer = null;
 let countdownInterval = null;
-let lastSpeechTime = 0;
 const synth = window.speechSynthesis;
 
-// ── Init ────────────────────────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────────────────────
 window.onload = () => {
   if (apiKey) {
     document.getElementById('keyStatus').textContent = '✓ Key geladen';
@@ -516,10 +222,7 @@ window.onload = () => {
   const slider = document.getElementById('speedSlider');
   slider.value = speechRate;
   document.getElementById('speedVal').textContent = speechRate.toFixed(1) + '×';
-
-  const sel = document.getElementById('silenceSelect');
-  sel.value = silenceTimeout;
-
+  document.getElementById('silenceSelect').value = silenceTimeout;
   if (messages.length > 0) {
     messages.forEach(m => {
       const text = Array.isArray(m.content)
@@ -532,7 +235,7 @@ window.onload = () => {
   synth.getVoices();
 };
 
-// ── Settings ─────────────────────────────────────────────────────────────────
+// ── Settings ──────────────────────────────────────────────────────────────────
 function updateSpeed(val) {
   speechRate = parseFloat(val);
   localStorage.setItem('ng_speed', speechRate);
@@ -544,7 +247,7 @@ function updateSilenceTimeout(val) {
   localStorage.setItem('ng_silence', silenceTimeout);
 }
 
-// ── Memory ───────────────────────────────────────────────────────────────────
+// ── Memory ────────────────────────────────────────────────────────────────────
 function updateMemoryBadge() {
   const count = Math.floor(messages.length / 2);
   document.getElementById('memoryBadge').textContent = count > 0 ? `${count} Gespräche gespeichert` : '';
@@ -557,7 +260,7 @@ function saveHistory() {
   updateMemoryBadge();
 }
 
-// ── Key ──────────────────────────────────────────────────────────────────────
+// ── Key ───────────────────────────────────────────────────────────────────────
 function saveKey() {
   const val = document.getElementById('apiKey').value.trim();
   if (!val.startsWith('sk-')) {
@@ -579,11 +282,9 @@ function startCountdownRing(durationMs) {
   ring.classList.add('visible');
   circle.style.strokeDasharray = CIRCUMFERENCE;
   circle.style.strokeDashoffset = CIRCUMFERENCE;
-
   const startTime = Date.now();
   countdownInterval = setInterval(() => {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / durationMs, 1);
+    const progress = Math.min((Date.now() - startTime) / durationMs, 1);
     circle.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
     if (progress >= 1) stopCountdownRing();
   }, 50);
@@ -608,13 +309,11 @@ function armSilenceTimer() {
   resetSilenceTimer();
   startCountdownRing(silenceTimeout);
   silenceTimer = setTimeout(() => {
-    if (isListening && recognition) {
-      recognition.stop(); // triggers onresult or onend
-    }
+    if (isListening && recognition) recognition.stop();
   }, silenceTimeout);
 }
 
-// ── Mic Control ──────────────────────────────────────────────────────────────
+// ── Mic Control ───────────────────────────────────────────────────────────────
 function toggleListening() {
   if (isSpeaking) { stopSpeaking(); return; }
   if (!apiKey) { showError('Bitte zuerst deinen Anthropic API Key eingeben.'); return; }
@@ -631,14 +330,11 @@ function toggleListening() {
 
 function startListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    showError('Web Speech API nicht unterstützt. Bitte Chrome verwenden.');
-    return;
-  }
+  if (!SR) { showError('Web Speech API nicht unterstützt. Bitte Chrome verwenden.'); return; }
 
   recognition = new SR();
   recognition.lang = 'de-DE';
-  recognition.interimResults = true; // needed for speech activity detection
+  recognition.interimResults = true;
   recognition.maxAlternatives = 1;
   recognition.continuous = false;
 
@@ -647,26 +343,15 @@ function startListening() {
     setMic('listening');
     setStatus('Höre zu…', 'active');
     hideError();
-    armSilenceTimer(); // start countdown immediately on mic open
-  };
-
-  // Reset timer whenever speech is detected (interim results)
-  recognition.onspeechstart = () => {
-    resetSilenceTimer(); // speech started, cancel countdown
-  };
-
-  recognition.onspeechend = () => {
-    // Speech stopped — arm the silence timer now
     armSilenceTimer();
   };
 
+  recognition.onspeechstart = () => { resetSilenceTimer(); };
+  recognition.onspeechend = () => { armSilenceTimer(); };
+
   recognition.onresult = (e) => {
-    // Reset timer on any interim result (user is speaking)
     const isFinal = e.results[e.results.length - 1].isFinal;
-    if (!isFinal) {
-      resetSilenceTimer();
-      return; // wait for final result
-    }
+    if (!isFinal) { resetSilenceTimer(); return; }
     const text = e.results[e.results.length - 1][0].transcript.trim();
     if (!text) return;
     resetSilenceTimer();
@@ -682,22 +367,17 @@ function startListening() {
     isListening = false;
     setMic('idle');
     if (e.error === 'not-allowed') {
-      showError('Mikrofon-Zugriff verweigert. Tippe oben in Chrome auf das Symbol links neben der URL → Mikrofon → Erlauben.');
-    } else if (e.error === 'no-speech') {
-      setStatus('Bereit', '');
-    } else {
+      showError('Mikrofon-Zugriff verweigert. Tippe in Chrome auf das Symbol neben der URL → Mikrofon → Erlauben.');
+    } else if (e.error !== 'no-speech') {
       showError('Fehler: ' + e.error);
+    } else {
+      setStatus('Bereit', '');
     }
   };
 
   recognition.onend = () => {
     resetSilenceTimer();
-    // If ended without a result (e.g. only silence), just reset
-    if (isListening) {
-      isListening = false;
-      setMic('idle');
-      setStatus('Bereit', '');
-    }
+    if (isListening) { isListening = false; setMic('idle'); setStatus('Bereit', ''); }
   };
 
   try { recognition.start(); }
@@ -729,11 +409,7 @@ async function askClaude(userText) {
       throw new Error(err.error?.message || 'API Fehler ' + res.status);
     }
     const data = await res.json();
-    const reply = data.content
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join(' ')
-      .trim();
+    const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join(' ').trim();
     messages.push({ role: 'assistant', content: data.content });
     saveHistory();
     addMsg('assistant', reply);
@@ -747,13 +423,7 @@ async function askClaude(userText) {
 
 // ── TTS ───────────────────────────────────────────────────────────────────────
 function speak(text) {
-  // Platform-aware stop
-  if (IS_MOBILE) {
-    synth.cancel();
-  } else {
-    synth.cancel(); // also cancel on desktop; pause() only useful mid-utterance
-  }
-
+  synth.cancel();
   const utt = new SpeechSynthesisUtterance(text);
   utt.lang = 'de-DE';
   utt.rate = speechRate;
@@ -761,11 +431,10 @@ function speak(text) {
 
   const loadVoiceAndSpeak = () => {
     const voices = synth.getVoices();
-    // Desktop (Edge): prefer natural/neural voices
     let voice = null;
     if (!IS_MOBILE) {
       voice = voices.find(v => v.lang.startsWith('de') && v.name.toLowerCase().includes('neural'))
-           || voices.find(v => v.lang.startsWith('de') && !v.localService) // online = higher quality on Edge
+           || voices.find(v => v.lang.startsWith('de') && !v.localService)
            || voices.find(v => v.lang.startsWith('de'));
     } else {
       voice = voices.find(v => v.lang.startsWith('de') && v.localService)
@@ -783,12 +452,10 @@ function speak(text) {
     utt.onend = () => {
       isSpeaking = false;
       document.getElementById('stopBtn').classList.remove('visible');
-      // Auto-restart listening after response
       setTimeout(() => startListening(), IS_MOBILE ? 600 : 400);
     };
 
     utt.onerror = (e) => {
-      // 'interrupted' is expected when cancel() is called — not a real error
       if (e.error === 'interrupted' || e.error === 'canceled') {
         isSpeaking = false;
         document.getElementById('stopBtn').classList.remove('visible');
@@ -804,23 +471,15 @@ function speak(text) {
     synth.speak(utt);
   };
 
-  // Voices may not be loaded yet on first run
   if (synth.getVoices().length > 0) {
     loadVoiceAndSpeak();
   } else {
-    synth.onvoiceschanged = () => {
-      synth.onvoiceschanged = null;
-      loadVoiceAndSpeak();
-    };
+    synth.onvoiceschanged = () => { synth.onvoiceschanged = null; loadVoiceAndSpeak(); };
   }
 }
 
 function stopSpeaking() {
-  if (IS_MOBILE) {
-    synth.cancel();
-  } else {
-    synth.cancel();
-  }
+  synth.cancel();
   isSpeaking = false;
   setMic('idle');
   setStatus('Bereit', '');
@@ -844,15 +503,11 @@ async function archiveConversation() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 600,
-        messages: [
-          ...messages,
-          { role: 'user', content: 'Bitte fasse unser heutiges Gespräch in 3-5 Sätzen zusammen. Beginne mit "Gesprächsarchiv Neugiergeist:" und nenne die wichtigsten Themen und Erkenntnisse. Schreibe auf Deutsch.' }
-        ]
+        messages: [...messages, { role: 'user', content: 'Fasse unser heutiges Gespräch in 3-5 Sätzen zusammen. Beginne mit "Gesprächsarchiv Neugiergeist:" und nenne die wichtigsten Themen. Schreibe auf Deutsch, ohne Formatierung.' }]
       })
     });
     const data = await res.json();
-    const summary = data.content[0].text;
-    await navigator.clipboard.writeText(summary);
+    await navigator.clipboard.writeText(data.content[0].text);
     btn.textContent = '✓ Kopiert — Archiv öffnet sich…';
     setTimeout(() => window.open('https://claude.ai/chat/36e30c18-9d28-438c-a143-78f8cc15cee0', '_blank'), 800);
   } catch(e) {
@@ -869,8 +524,7 @@ function addMsg(role, text) {
   if (empty) empty.remove();
   const div = document.createElement('div');
   div.className = 'msg ' + role;
-  div.innerHTML = `<div class="msg-label">${role === 'user' ? 'Du' : 'Neugiergeist'}</div>
-    <div class="msg-bubble">${text}</div>`;
+  div.innerHTML = `<div class="msg-label">${role === 'user' ? 'Du' : 'Neugiergeist'}</div><div class="msg-bubble">${text}</div>`;
   conv.appendChild(div);
   conv.scrollTop = conv.scrollHeight;
 }
@@ -893,6 +547,10 @@ function showError(msg) {
 
 function hideError() {
   document.getElementById('errorBox').classList.remove('visible');
+}
+
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.onvoiceschanged = () => {};
 }
 </script>
 </body>
