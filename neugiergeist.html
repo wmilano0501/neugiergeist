@@ -37,10 +37,7 @@
     margin: 0 auto;
   }
 
-  .header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
+  .header { text-align: center; margin-bottom: 2rem; }
 
   .header h1 {
     font-family: 'DM Serif Display', serif;
@@ -50,10 +47,7 @@
     line-height: 1.1;
   }
 
-  .header h1 em {
-    font-style: italic;
-    color: var(--accent);
-  }
+  .header h1 em { font-style: italic; color: var(--accent); }
 
   .header p {
     margin-top: 0.4rem;
@@ -62,6 +56,13 @@
     font-weight: 300;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+
+  .platform-badge {
+    margin-top: 0.3rem;
+    font-size: 0.68rem;
+    color: var(--muted);
+    opacity: 0.7;
   }
 
   .card {
@@ -198,6 +199,7 @@
     transition: all 0.2s;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    position: relative;
   }
 
   .mic-btn:active { transform: scale(0.95); }
@@ -216,6 +218,29 @@
   .mic-btn.thinking {
     border-color: var(--muted);
     background: var(--surface);
+  }
+
+  /* Countdown ring overlay */
+  .countdown-ring {
+    position: absolute;
+    top: -6px; left: -6px;
+    width: 100px; height: 100px;
+    pointer-events: none;
+    display: none;
+  }
+
+  .countdown-ring.visible { display: block; }
+
+  .countdown-ring circle {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    stroke-linecap: round;
+    transform-origin: center;
+    transform: rotate(-90deg);
+    transition: stroke-dashoffset 0.1s linear;
   }
 
   .mic-icon { width: 30px; height: 30px; fill: var(--ink); transition: fill 0.2s; }
@@ -319,6 +344,45 @@
     text-align: right;
   }
 
+  /* Silence timeout selector */
+  .silence-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 0.2rem;
+  }
+
+  .silence-row label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .silence-row select {
+    flex: 1;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .memory-badge {
+    font-size: 0.7rem;
+    color: var(--green);
+    text-align: center;
+    margin-top: 0.3rem;
+  }
+
   .archive-btn {
     margin-top: 0.3rem;
     padding: 0.5rem 1.4rem;
@@ -337,11 +401,6 @@
   .archive-btn.visible { display: block; }
   .archive-btn:active { color: var(--accent); border-color: var(--accent); }
   .archive-btn.loading { opacity: 0.6; pointer-events: none; }
-    font-size: 0.7rem;
-    color: var(--green);
-    text-align: center;
-    margin-top: 0.3rem;
-  }
 
   @keyframes pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(200,87,26,0.3); }
@@ -359,6 +418,7 @@
 <div class="header">
   <h1>Neugier<em>geist</em></h1>
   <p>Dein deutschsprachiger Gesprächspartner</p>
+  <div class="platform-badge" id="platformBadge"></div>
 </div>
 
 <div class="card" id="apiSetup">
@@ -380,6 +440,9 @@
 
 <div class="controls">
   <button class="mic-btn" id="micBtn" onclick="toggleListening()">
+    <svg class="countdown-ring" id="countdownRing" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="45" id="countdownCircle"/>
+    </svg>
     <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm6 9a1 1 0 0 1 2 0 8 8 0 0 1-7 7.93V20h2a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2h2v-2.07A8 8 0 0 1 4 10a1 1 0 0 1 2 0 6 6 0 0 0 12 0z"/>
     </svg>
@@ -389,16 +452,37 @@
   </button>
   <div class="status-text" id="statusText">Bereit</div>
   <button class="stop-btn" id="stopBtn" onclick="stopSpeaking()">Stopp</button>
+
   <div class="settings-row">
     <label>Tempo</label>
     <input type="range" class="speed-slider" id="speedSlider" min="0.6" max="1.8" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
     <span class="speed-val" id="speedVal">1.0×</span>
   </div>
+
+  <div class="silence-row">
+    <label>Pause</label>
+    <select id="silenceSelect" onchange="updateSilenceTimeout(this.value)">
+      <option value="3000">3 Sekunden</option>
+      <option value="5000" selected>5 Sekunden</option>
+      <option value="7000">7 Sekunden</option>
+      <option value="10000">10 Sekunden</option>
+    </select>
+  </div>
+
   <div class="memory-badge" id="memoryBadge"></div>
   <button class="archive-btn" id="archiveBtn" onclick="archiveConversation()">✦ In Claude archivieren</button>
 </div>
 
 <script>
+// ── Platform Detection ──────────────────────────────────────────────────────
+const IS_ANDROID = /Android/i.test(navigator.userAgent);
+const IS_IOS = /iPad|iPhone|iPod/i.test(navigator.userAgent);
+const IS_MOBILE = IS_ANDROID || IS_IOS;
+
+document.getElementById('platformBadge').textContent =
+  IS_ANDROID ? '📱 Android-Modus' : IS_IOS ? '📱 iOS-Modus' : '🖥 Desktop-Modus';
+
+// ── Config ──────────────────────────────────────────────────────────────────
 const SYSTEM_PROMPT = `Du bist ein neugieriger, intelligenter Gesprächspartner. Du sprichst ausschließlich Deutsch.
 Dein Ziel ist es, dem Nutzer dabei zu helfen, sein Allgemeinwissen zu erweitern — durch lebhafte, informative Gespräche über Naturwissenschaften, Geschichte, Philosophie, Wirtschaft und alles dazwischen.
 Halte deine Antworten gesprächig und prägnant (2-4 Sätze), damit sie sich gut zum Vorlesen eignen.
@@ -406,6 +490,10 @@ Stelle am Ende oft eine Gegenfrage, um das Gespräch in Gang zu halten.
 Sei direkt, präzise und zeige echte Begeisterung für Ideen.
 Wenn du Websuchen verwendest, nenne KEINE Quellen oder Zitate — integriere die Information direkt in deine Antwort.`;
 
+const MAX_HISTORY = 20;
+const CIRCUMFERENCE = 2 * Math.PI * 45; // ≈ 283 for r=45
+
+// ── State ───────────────────────────────────────────────────────────────────
 let apiKey = localStorage.getItem('ng_key') || '';
 let messages = JSON.parse(localStorage.getItem('ng_history') || '[]');
 let recognition = null;
@@ -413,88 +501,63 @@ let isListening = false;
 let isSpeaking = false;
 let currentUtterance = null;
 let speechRate = parseFloat(localStorage.getItem('ng_speed') || '1.0');
+let silenceTimeout = parseInt(localStorage.getItem('ng_silence') || '5000');
+let silenceTimer = null;
+let countdownInterval = null;
+let lastSpeechTime = 0;
 const synth = window.speechSynthesis;
-const MAX_HISTORY = 20; // max messages to remember
 
+// ── Init ────────────────────────────────────────────────────────────────────
 window.onload = () => {
   if (apiKey) {
     document.getElementById('keyStatus').textContent = '✓ Key geladen';
     document.getElementById('keyStatus').className = 'key-status ok';
   }
-  // restore speed slider
   const slider = document.getElementById('speedSlider');
   slider.value = speechRate;
   document.getElementById('speedVal').textContent = speechRate.toFixed(1) + '×';
-  // restore conversation history
+
+  const sel = document.getElementById('silenceSelect');
+  sel.value = silenceTimeout;
+
   if (messages.length > 0) {
-    messages.forEach(m => addMsg(m.role, m.content));
+    messages.forEach(m => {
+      const text = Array.isArray(m.content)
+        ? m.content.filter(b => b.type === 'text').map(b => b.text).join(' ')
+        : m.content;
+      addMsg(m.role, text);
+    });
     updateMemoryBadge();
   }
   synth.getVoices();
 };
 
+// ── Settings ─────────────────────────────────────────────────────────────────
 function updateSpeed(val) {
   speechRate = parseFloat(val);
   localStorage.setItem('ng_speed', speechRate);
   document.getElementById('speedVal').textContent = speechRate.toFixed(1) + '×';
 }
 
+function updateSilenceTimeout(val) {
+  silenceTimeout = parseInt(val);
+  localStorage.setItem('ng_silence', silenceTimeout);
+}
+
+// ── Memory ───────────────────────────────────────────────────────────────────
 function updateMemoryBadge() {
   const count = Math.floor(messages.length / 2);
   document.getElementById('memoryBadge').textContent = count > 0 ? `${count} Gespräche gespeichert` : '';
-  const archiveBtn = document.getElementById('archiveBtn');
-  if (messages.length >= 2) archiveBtn.classList.add('visible');
+  if (messages.length >= 2) document.getElementById('archiveBtn').classList.add('visible');
 }
 
 function saveHistory() {
-  // keep last MAX_HISTORY messages
-  const trimmed = messages.slice(-MAX_HISTORY);
-  messages = trimmed;
+  messages = messages.slice(-MAX_HISTORY);
   localStorage.setItem('ng_history', JSON.stringify(messages));
   updateMemoryBadge();
 }
 
-async function archiveConversation() {
-  const btn = document.getElementById('archiveBtn');
-  btn.textContent = '⏳ Zusammenfassung wird erstellt…';
-  btn.classList.add('loading');
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 600,
-        messages: [
-          ...messages,
-          {
-            role: 'user',
-            content: 'Bitte fasse unser heutiges Gespräch in 3-5 Sätzen zusammen. Beginne mit "Gesprächsarchiv Neugiergeist:" und nenne die wichtigsten Themen und Erkenntnisse. Schreibe auf Deutsch.'
-          }
-        ]
-      })
-    });
-
-    const data = await res.json();
-    const summary = data.content[0].text;
-    await navigator.clipboard.writeText(summary);
-    btn.textContent = '✓ Kopiert — Archiv öffnet sich…';
-    setTimeout(() => window.open('https://claude.ai/chat/36e30c18-9d28-438c-a143-78f8cc15cee0', '_blank'), 800);
-
-  } catch(e) {
-    showError('Archivierung fehlgeschlagen: ' + e.message);
-  }
-
-  btn.textContent = '✦ In Claude archivieren';
-  btn.classList.remove('loading');
-}
-
+// ── Key ──────────────────────────────────────────────────────────────────────
 function saveKey() {
   const val = document.getElementById('apiKey').value.trim();
   if (!val.startsWith('sk-')) {
@@ -509,10 +572,54 @@ function saveKey() {
   hideError();
 }
 
+// ── Countdown Ring ────────────────────────────────────────────────────────────
+function startCountdownRing(durationMs) {
+  const ring = document.getElementById('countdownRing');
+  const circle = document.getElementById('countdownCircle');
+  ring.classList.add('visible');
+  circle.style.strokeDasharray = CIRCUMFERENCE;
+  circle.style.strokeDashoffset = CIRCUMFERENCE;
+
+  const startTime = Date.now();
+  countdownInterval = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / durationMs, 1);
+    circle.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+    if (progress >= 1) stopCountdownRing();
+  }, 50);
+}
+
+function stopCountdownRing() {
+  clearInterval(countdownInterval);
+  countdownInterval = null;
+  const ring = document.getElementById('countdownRing');
+  const circle = document.getElementById('countdownCircle');
+  ring.classList.remove('visible');
+  circle.style.strokeDashoffset = CIRCUMFERENCE;
+}
+
+// ── Silence Detection ─────────────────────────────────────────────────────────
+function resetSilenceTimer() {
+  clearTimeout(silenceTimer);
+  stopCountdownRing();
+}
+
+function armSilenceTimer() {
+  resetSilenceTimer();
+  startCountdownRing(silenceTimeout);
+  silenceTimer = setTimeout(() => {
+    if (isListening && recognition) {
+      recognition.stop(); // triggers onresult or onend
+    }
+  }, silenceTimeout);
+}
+
+// ── Mic Control ──────────────────────────────────────────────────────────────
 function toggleListening() {
   if (isSpeaking) { stopSpeaking(); return; }
   if (!apiKey) { showError('Bitte zuerst deinen Anthropic API Key eingeben.'); return; }
   if (isListening) {
+    resetSilenceTimer();
     recognition && recognition.stop();
     isListening = false;
     setMic('idle');
@@ -528,9 +635,10 @@ function startListening() {
     showError('Web Speech API nicht unterstützt. Bitte Chrome verwenden.');
     return;
   }
+
   recognition = new SR();
   recognition.lang = 'de-DE';
-  recognition.interimResults = false;
+  recognition.interimResults = true; // needed for speech activity detection
   recognition.maxAlternatives = 1;
   recognition.continuous = false;
 
@@ -539,10 +647,29 @@ function startListening() {
     setMic('listening');
     setStatus('Höre zu…', 'active');
     hideError();
+    armSilenceTimer(); // start countdown immediately on mic open
+  };
+
+  // Reset timer whenever speech is detected (interim results)
+  recognition.onspeechstart = () => {
+    resetSilenceTimer(); // speech started, cancel countdown
+  };
+
+  recognition.onspeechend = () => {
+    // Speech stopped — arm the silence timer now
+    armSilenceTimer();
   };
 
   recognition.onresult = (e) => {
-    const text = e.results[0][0].transcript;
+    // Reset timer on any interim result (user is speaking)
+    const isFinal = e.results[e.results.length - 1].isFinal;
+    if (!isFinal) {
+      resetSilenceTimer();
+      return; // wait for final result
+    }
+    const text = e.results[e.results.length - 1][0].transcript.trim();
+    if (!text) return;
+    resetSilenceTimer();
     isListening = false;
     addMsg('user', text);
     setMic('thinking');
@@ -551,6 +678,7 @@ function startListening() {
   };
 
   recognition.onerror = (e) => {
+    resetSilenceTimer();
     isListening = false;
     setMic('idle');
     if (e.error === 'not-allowed') {
@@ -563,13 +691,20 @@ function startListening() {
   };
 
   recognition.onend = () => {
-    if (isListening) { isListening = false; setMic('idle'); setStatus('Bereit', ''); }
+    resetSilenceTimer();
+    // If ended without a result (e.g. only silence), just reset
+    if (isListening) {
+      isListening = false;
+      setMic('idle');
+      setStatus('Bereit', '');
+    }
   };
 
   try { recognition.start(); }
   catch(e) { showError('Mikrofon konnte nicht gestartet werden: ' + e.message); }
 }
 
+// ── Claude API ────────────────────────────────────────────────────────────────
 async function askClaude(userText) {
   messages.push({ role: 'user', content: userText });
   try {
@@ -594,7 +729,6 @@ async function askClaude(userText) {
       throw new Error(err.error?.message || 'API Fehler ' + res.status);
     }
     const data = await res.json();
-    // extract text from content blocks (web search may add multiple blocks)
     const reply = data.content
       .filter(b => b.type === 'text')
       .map(b => b.text)
@@ -611,50 +745,124 @@ async function askClaude(userText) {
   }
 }
 
+// ── TTS ───────────────────────────────────────────────────────────────────────
 function speak(text) {
-  synth.cancel();
+  // Platform-aware stop
+  if (IS_MOBILE) {
+    synth.cancel();
+  } else {
+    synth.cancel(); // also cancel on desktop; pause() only useful mid-utterance
+  }
+
   const utt = new SpeechSynthesisUtterance(text);
   utt.lang = 'de-DE';
   utt.rate = speechRate;
   utt.pitch = 1.0;
 
-  const voices = synth.getVoices();
-  const deVoice = voices.find(v => v.lang.startsWith('de') && v.localService)
-                || voices.find(v => v.lang.startsWith('de'));
-  if (deVoice) utt.voice = deVoice;
+  const loadVoiceAndSpeak = () => {
+    const voices = synth.getVoices();
+    // Desktop (Edge): prefer natural/neural voices
+    let voice = null;
+    if (!IS_MOBILE) {
+      voice = voices.find(v => v.lang.startsWith('de') && v.name.toLowerCase().includes('neural'))
+           || voices.find(v => v.lang.startsWith('de') && !v.localService) // online = higher quality on Edge
+           || voices.find(v => v.lang.startsWith('de'));
+    } else {
+      voice = voices.find(v => v.lang.startsWith('de') && v.localService)
+           || voices.find(v => v.lang.startsWith('de'));
+    }
+    if (voice) utt.voice = voice;
 
-  utt.onstart = () => {
-    isSpeaking = true;
-    setMic('speaking');
-    setStatus('Spricht…', 'speaking');
-    document.getElementById('stopBtn').classList.add('visible');
+    utt.onstart = () => {
+      isSpeaking = true;
+      setMic('speaking');
+      setStatus('Spricht…', 'speaking');
+      document.getElementById('stopBtn').classList.add('visible');
+    };
+
+    utt.onend = () => {
+      isSpeaking = false;
+      document.getElementById('stopBtn').classList.remove('visible');
+      // Auto-restart listening after response
+      setTimeout(() => startListening(), IS_MOBILE ? 600 : 400);
+    };
+
+    utt.onerror = (e) => {
+      // 'interrupted' is expected when cancel() is called — not a real error
+      if (e.error === 'interrupted' || e.error === 'canceled') {
+        isSpeaking = false;
+        document.getElementById('stopBtn').classList.remove('visible');
+        return;
+      }
+      isSpeaking = false;
+      setMic('idle');
+      setStatus('Bereit', '');
+      document.getElementById('stopBtn').classList.remove('visible');
+    };
+
+    currentUtterance = utt;
+    synth.speak(utt);
   };
 
-  utt.onend = () => {
-    isSpeaking = false;
-    document.getElementById('stopBtn').classList.remove('visible');
-    setTimeout(() => startListening(), 400);
-  };
-
-  utt.onerror = () => {
-    isSpeaking = false;
-    setMic('idle');
-    setStatus('Bereit', '');
-    document.getElementById('stopBtn').classList.remove('visible');
-  };
-
-  currentUtterance = utt;
-  synth.speak(utt);
+  // Voices may not be loaded yet on first run
+  if (synth.getVoices().length > 0) {
+    loadVoiceAndSpeak();
+  } else {
+    synth.onvoiceschanged = () => {
+      synth.onvoiceschanged = null;
+      loadVoiceAndSpeak();
+    };
+  }
 }
 
 function stopSpeaking() {
-  synth.cancel();
+  if (IS_MOBILE) {
+    synth.cancel();
+  } else {
+    synth.cancel();
+  }
   isSpeaking = false;
   setMic('idle');
   setStatus('Bereit', '');
   document.getElementById('stopBtn').classList.remove('visible');
 }
 
+// ── Archive ───────────────────────────────────────────────────────────────────
+async function archiveConversation() {
+  const btn = document.getElementById('archiveBtn');
+  btn.textContent = '⏳ Zusammenfassung wird erstellt…';
+  btn.classList.add('loading');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 600,
+        messages: [
+          ...messages,
+          { role: 'user', content: 'Bitte fasse unser heutiges Gespräch in 3-5 Sätzen zusammen. Beginne mit "Gesprächsarchiv Neugiergeist:" und nenne die wichtigsten Themen und Erkenntnisse. Schreibe auf Deutsch.' }
+        ]
+      })
+    });
+    const data = await res.json();
+    const summary = data.content[0].text;
+    await navigator.clipboard.writeText(summary);
+    btn.textContent = '✓ Kopiert — Archiv öffnet sich…';
+    setTimeout(() => window.open('https://claude.ai/chat/36e30c18-9d28-438c-a143-78f8cc15cee0', '_blank'), 800);
+  } catch(e) {
+    showError('Archivierung fehlgeschlagen: ' + e.message);
+  }
+  btn.textContent = '✦ In Claude archivieren';
+  btn.classList.remove('loading');
+}
+
+// ── UI Helpers ────────────────────────────────────────────────────────────────
 function addMsg(role, text) {
   const conv = document.getElementById('conversation');
   const empty = document.getElementById('emptyState');
@@ -685,10 +893,6 @@ function showError(msg) {
 
 function hideError() {
   document.getElementById('errorBox').classList.remove('visible');
-}
-
-if (typeof speechSynthesis !== 'undefined') {
-  speechSynthesis.onvoiceschanged = () => {};
 }
 </script>
 </body>
