@@ -422,65 +422,85 @@ async function askClaude(userText) {
 }
 
 // ── TTS ───────────────────────────────────────────────────────────────────────
+// Split text into sentences for Android TTS stability
+function splitSentences(text) {
+  // Split on sentence-ending punctuation, keep delimiter
+  const raw = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+  return raw.map(s => s.trim()).filter(s => s.length > 0);
+}
+
 function speak(text) {
   synth.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'de-DE';
-  utt.rate = speechRate;
-  utt.pitch = 1.0;
+  const chunks = IS_MOBILE ? splitSentences(text) : [text];
+  let chunkIndex = 0;
+  let cancelled = false;
 
-  const loadVoiceAndSpeak = () => {
+  const getVoice = () => {
     const voices = synth.getVoices();
-    let voice = null;
     if (!IS_MOBILE) {
-      voice = voices.find(v => v.lang.startsWith('de') && v.name.toLowerCase().includes('neural'))
-           || voices.find(v => v.lang.startsWith('de') && !v.localService)
-           || voices.find(v => v.lang.startsWith('de'));
-    } else {
-      voice = voices.find(v => v.lang.startsWith('de') && v.localService)
-           || voices.find(v => v.lang.startsWith('de'));
+      return voices.find(v => v.lang.startsWith('de') && v.name.toLowerCase().includes('neural'))
+          || voices.find(v => v.lang.startsWith('de') && !v.localService)
+          || voices.find(v => v.lang.startsWith('de'));
     }
+    return voices.find(v => v.lang.startsWith('de') && v.localService)
+        || voices.find(v => v.lang.startsWith('de'));
+  };
+
+  const speakChunk = (index) => {
+    if (cancelled || index >= chunks.length) {
+      if (!cancelled) {
+        isSpeaking = false;
+        document.getElementById('stopBtn').classList.remove('visible');
+        setTimeout(() => startListening(), IS_MOBILE ? 600 : 400);
+      }
+      return;
+    }
+
+    const utt = new SpeechSynthesisUtterance(chunks[index]);
+    utt.lang = 'de-DE';
+    utt.rate = speechRate;
+    utt.pitch = 1.0;
+    const voice = getVoice();
     if (voice) utt.voice = voice;
 
-    utt.onstart = () => {
-      isSpeaking = true;
-      setMic('speaking');
-      setStatus('Spricht…', 'speaking');
-      document.getElementById('stopBtn').classList.add('visible');
-    };
+    if (index === 0) {
+      utt.onstart = () => {
+        isSpeaking = true;
+        setMic('speaking');
+        setStatus('Spricht…', 'speaking');
+        document.getElementById('stopBtn').classList.add('visible');
+      };
+    }
 
     utt.onend = () => {
-      isSpeaking = false;
-      document.getElementById('stopBtn').classList.remove('visible');
-      setTimeout(() => startListening(), IS_MOBILE ? 600 : 400);
+      if (!cancelled) speakChunk(index + 1);
     };
 
     utt.onerror = (e) => {
       if (e.error === 'interrupted' || e.error === 'canceled') {
+        cancelled = true;
         isSpeaking = false;
         document.getElementById('stopBtn').classList.remove('visible');
         return;
       }
-      isSpeaking = false;
-      setMic('idle');
-      setStatus('Bereit', '');
-      document.getElementById('stopBtn').classList.remove('visible');
+      // On error mid-chunk, try next chunk anyway
+      if (!cancelled) speakChunk(index + 1);
     };
 
-    currentUtterance = utt;
     synth.speak(utt);
   };
 
   if (synth.getVoices().length > 0) {
-    loadVoiceAndSpeak();
+    speakChunk(0);
   } else {
-    synth.onvoiceschanged = () => { synth.onvoiceschanged = null; loadVoiceAndSpeak(); };
+    synth.onvoiceschanged = () => { synth.onvoiceschanged = null; speakChunk(0); };
   }
 }
 
 function stopSpeaking() {
   synth.cancel();
   isSpeaking = false;
+  currentUtterance = null;
   setMic('idle');
   setStatus('Bereit', '');
   document.getElementById('stopBtn').classList.remove('visible');
