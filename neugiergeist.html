@@ -97,6 +97,14 @@
   .action-btn.visible { display: block; }
   .action-btn:active { color: var(--accent); border-color: var(--accent); }
   .action-btn.loading { opacity: 0.6; pointer-events: none; }
+  .context-row { margin-top: 0.8rem; border-top: 1px solid var(--border); padding-top: 0.8rem; }
+  .context-row label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; }
+  .context-upload { display: flex; align-items: center; gap: 0.5rem; }
+  .context-btn { padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--paper); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: var(--ink); cursor: pointer; white-space: nowrap; touch-action: manipulation; transition: all 0.15s; }
+  .context-btn:active { background: var(--surface); }
+  .context-name { flex: 1; font-size: 0.72rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .context-name.loaded { color: var(--green); }
+  .context-clear { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: transparent; font-size: 0.7rem; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; touch-action: manipulation; }
   @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(200,87,26,0.3); } 50% { box-shadow: 0 0 0 14px rgba(200,87,26,0); } }
   @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
 </style>
@@ -147,6 +155,15 @@
     <button class="mode-chip" data-mode="artifact" onclick="setMode(this)">
       <span class="mode-emoji">📄</span>Artifact Mode
     </button>
+  </div>
+  <div class="context-row">
+    <label>Kontext-Datei (optional)</label>
+    <div class="context-upload">
+      <input type="file" id="contextFile" accept=".md,.txt" onchange="loadContextFile(this)" style="display:none">
+      <button class="context-btn" onclick="document.getElementById('contextFile').click()">📎 Markdown laden</button>
+      <span class="context-name" id="contextName">Keine Datei</span>
+      <button class="context-clear" id="contextClear" onclick="clearContext()" style="display:none">✕</button>
+    </div>
   </div>
 </div>
 
@@ -214,6 +231,8 @@ const MODES = {
 };
 
 let activeMode = 'walking';
+let contextMarkdown = '';
+let contextFilename = '';
 
 function setMode(chip) {
   document.querySelectorAll('.mode-chip').forEach(c => c.classList.remove('active'));
@@ -222,16 +241,44 @@ function setMode(chip) {
   document.getElementById('modeBadge').textContent = MODES[activeMode].label;
 }
 
+function loadContextFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    contextMarkdown = e.target.result;
+    contextFilename = file.name;
+    const nameEl = document.getElementById('contextName');
+    nameEl.textContent = file.name;
+    nameEl.classList.add('loaded');
+    document.getElementById('contextClear').style.display = 'flex';
+  };
+  reader.readAsText(file);
+}
+
+function clearContext() {
+  contextMarkdown = '';
+  contextFilename = '';
+  const nameEl = document.getElementById('contextName');
+  nameEl.textContent = 'Keine Datei';
+  nameEl.classList.remove('loaded');
+  document.getElementById('contextClear').style.display = 'none';
+  document.getElementById('contextFile').value = '';
+}
+
 // Init mode badge
 document.getElementById('modeBadge').textContent = MODES[activeMode].label;
 
 // ── System Prompt Builder ────────────────────────────────────────────────────
 function buildSystemPrompt() {
+  const contextBlock = contextMarkdown
+    ? `\nKONTEXT-DOKUMENT (${contextFilename}):\n${contextMarkdown}\n`
+    : '';
   return `Du bist Neugiergeist — Max's persönlicher mobiler Gesprächspartner und kritischer Sparringspartner. Du sprichst standardmäßig Deutsch, wechselst zu Englisch wenn Max auf Englisch spricht. Deine Antworten werden vorgelesen (Text-to-Speech).
 
 KONTEXT ZU MAX:
 Max ist Banker in Frankfurt, handelt Optionen, betreibt eine Vermögensverwaltungs-GmbH. Wohnt am Ammersee (Utting). Intellektuell neugierig mit Tiefgang: Naturwissenschaften, Geschichte, Geopolitik, Philosophie, Psychologie, Wirtschaft, Technologie. Nutzt Claude intensiv für Quant-Finance, Workflows, kreative Projekte.
-
+${contextBlock}
 ${MODES[activeMode].instruction}
 
 PERSÖNLICHKEIT & STIL (immer aktiv):
@@ -241,39 +288,15 @@ PERSÖNLICHKEIT & STIL (immer aktiv):
 - Kein Loben, kein Schmeicheln ("Gute Frage!" etc.)
 - Direkt zum Punkt — kein Vorgeplänkel
 
-RÜCKFRAGEN (Clarify):
-- Eine Rückfrage wenn Kontext die Antwort deutlich verbessert
-- Nie mehrere Fragen gleichzeitig
+RÜCKFRAGEN: Eine Rückfrage wenn Kontext die Antwort deutlich verbessert. Nie mehrere Fragen gleichzeitig.
 
-PRÄZISION (Surgical Specificity):
-- Frameworks, Forschung, Autorennamen, Fakten wo relevant
-- Ideen in Variablen und Muster zerlegen
-- Verschiedene Perspektiven anbieten
+ANTI-HALLUZINATION: Bei Tech-Tools, APIs, aktuellen Ereignissen explizit sagen wenn unsicher. Konfidenz-Score wenn unter 90%. Keine API-Parameter oder Feature-Namen erfinden.
 
-ANTI-HALLUZINATION (immer aktiv):
-- Bei Tech-Tools, APIs, aktuellen Ereignissen: explizit sagen wenn unsicher
-- Formulierungen: "Ich bin mir nicht sicher, aber..." oder "Das solltest du verifizieren..."
-- Konfidenz-Score wenn unter 90% sicher
-- Keine API-Parameter, Feature-Namen oder Integrations-Claims erfinden
+VOICE-RUBEN (aktivieren wenn Max LinkedIn/Newsletter im Stil von Ruben Hassid anfragt): Struktur Pain→Diagnosis→Solution→Empowerment. Keine Emojis, kein Hype. Kernüberzeugung: "AI is average. Your taste is the differentiator."
 
-VOICE-RUBEN SKILL (aktivieren wenn Max LinkedIn-Post, Newsletter oder Content im Stil von Ruben Hassid anfagt):
-- Struktur: Pain → Diagnosis → Solution → Empowerment
-- Keine Emojis, kein Hype, keine Versprechen über Geld/Follower
-- Kernüberzeugung einbetten: "AI is average. Your taste is the differentiator."
-- Kernidentität: nicht-technischer Guy der es herausgefunden hat, Wahrheitsmaschine
+AM KONVERSATIONSENDE: Prüfe ob etwas als Memory-Eintrag, Skill-Update oder Transcript-Transfer zu Claude.ai sinnvoll wäre. Wenn ja: einzeiligen Hinweis aussprechen.
 
-MODES SKILL (verfügbare Modi — Max kann jederzeit wechseln):
-Walking, Devil's Advocate, Explorer, Coach, Simplifier, Hats, Focus, Artifact
-Wenn Max "Wechsle in [Modus]" sagt, bestätige kurz und passe Verhalten sofort an.
-
-AM KONVERSATIONSENDE:
-Prüfe ob etwas als Memory-Eintrag, Skill-Update, Projekt-Update oder Transcript-Transfer zu Claude.ai sinnvoll wäre. Wenn ja: einzeiligen Hinweis aussprechen.
-
-VERBOTEN in Antworten:
-- Keine Emojis oder Sonderzeichen
-- Keine Markdown-Formatierung (kein **, keine #, keine - Listen)
-- Kein Loben oder Schmeicheln
-- Keine langen Einleitungen`;
+VERBOTEN: Keine Emojis, keine Markdown-Formatierung, kein Loben, keine langen Einleitungen.`;
 }
 
 // ── Config ───────────────────────────────────────────────────────────────────
