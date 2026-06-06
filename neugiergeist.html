@@ -27,6 +27,7 @@
   .header h1 em { font-style: italic; color: var(--accent); }
   .header p { margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase; }
   .platform-badge { margin-top: 0.3rem; font-size: 0.68rem; color: var(--muted); opacity: 0.7; }
+  .mode-badge { margin-top: 0.4rem; font-size: 0.72rem; color: var(--accent); font-weight: 500; letter-spacing: 0.05em; min-height: 1.2em; }
   .card { width: 100%; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; margin-bottom: 1rem; }
   .card label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; }
   .api-row { display: flex; gap: 8px; }
@@ -40,6 +41,15 @@
   .btn:active { background: var(--accent); }
   .key-status { margin-top: 0.5rem; font-size: 0.75rem; color: var(--muted); }
   .key-status.ok { color: var(--green); }
+
+  /* Mode Selector */
+  .mode-selector { width: 100%; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; margin-bottom: 1rem; }
+  .mode-selector label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.8rem; }
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .mode-chip { padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 8px; background: var(--paper); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: var(--ink); cursor: pointer; transition: all 0.15s; text-align: left; line-height: 1.3; touch-action: manipulation; }
+  .mode-chip:active, .mode-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .mode-chip .mode-emoji { display: block; font-size: 1rem; margin-bottom: 0.15rem; }
+
   .conversation { width: 100%; min-height: 260px; max-height: 42vh; overflow-y: auto; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.9rem; -webkit-overflow-scrolling: touch; }
   .empty-state { flex: 1; display: flex; align-items: center; justify-content: center; }
   .empty-state p { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 1.05rem; color: var(--muted); text-align: center; line-height: 1.6; }
@@ -82,10 +92,11 @@
   .silence-row label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); white-space: nowrap; }
   .silence-row select { flex: 1; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; background: var(--paper); color: var(--ink); outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; }
   .memory-badge { font-size: 0.7rem; color: var(--green); text-align: center; margin-top: 0.3rem; }
-  .archive-btn { margin-top: 0.3rem; padding: 0.5rem 1.4rem; border: 1px solid var(--border); border-radius: 20px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.2s; touch-action: manipulation; display: none; }
-  .archive-btn.visible { display: block; }
-  .archive-btn:active { color: var(--accent); border-color: var(--accent); }
-  .archive-btn.loading { opacity: 0.6; pointer-events: none; }
+  .action-row { display: flex; gap: 0.6rem; margin-top: 0.3rem; flex-wrap: wrap; justify-content: center; }
+  .action-btn { padding: 0.5rem 1.2rem; border: 1px solid var(--border); border-radius: 20px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--muted); cursor: pointer; transition: all 0.2s; touch-action: manipulation; display: none; }
+  .action-btn.visible { display: block; }
+  .action-btn:active { color: var(--accent); border-color: var(--accent); }
+  .action-btn.loading { opacity: 0.6; pointer-events: none; }
   @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(200,87,26,0.3); } 50% { box-shadow: 0 0 0 14px rgba(200,87,26,0); } }
   @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
 </style>
@@ -94,8 +105,9 @@
 
 <div class="header">
   <h1>Neugier<em>geist</em></h1>
-  <p>Dein deutschsprachiger Gesprächspartner</p>
+  <p>Dein persönlicher Gesprächspartner</p>
   <div class="platform-badge" id="platformBadge"></div>
+  <div class="mode-badge" id="modeBadge"></div>
 </div>
 
 <div class="card" id="apiSetup">
@@ -107,9 +119,40 @@
   <div class="key-status" id="keyStatus">Kein Key gespeichert</div>
 </div>
 
+<!-- Mode Selector -->
+<div class="mode-selector" id="modeSelector">
+  <label>Modus für diese Konversation</label>
+  <div class="mode-grid">
+    <button class="mode-chip active" data-mode="walking" onclick="setMode(this)">
+      <span class="mode-emoji">🚶</span>Walking Mode
+    </button>
+    <button class="mode-chip" data-mode="devils" onclick="setMode(this)">
+      <span class="mode-emoji">😈</span>Devil's Advocate
+    </button>
+    <button class="mode-chip" data-mode="explorer" onclick="setMode(this)">
+      <span class="mode-emoji">🌀</span>Explorer Mode
+    </button>
+    <button class="mode-chip" data-mode="coach" onclick="setMode(this)">
+      <span class="mode-emoji">🎯</span>Coach Mode
+    </button>
+    <button class="mode-chip" data-mode="simplifier" onclick="setMode(this)">
+      <span class="mode-emoji">🔪</span>Simplifier Mode
+    </button>
+    <button class="mode-chip" data-mode="hats" onclick="setMode(this)">
+      <span class="mode-emoji">🎩</span>Hats Mode
+    </button>
+    <button class="mode-chip" data-mode="focus" onclick="setMode(this)">
+      <span class="mode-emoji">🔦</span>Focus Mode
+    </button>
+    <button class="mode-chip" data-mode="artifact" onclick="setMode(this)">
+      <span class="mode-emoji">📄</span>Artifact Mode
+    </button>
+  </div>
+</div>
+
 <div class="conversation" id="conversation">
   <div class="empty-state" id="emptyState">
-    <p>Drücke den Knopf<br>und beginne zu sprechen.</p>
+    <p>Wähle einen Modus<br>und beginne zu sprechen.</p>
   </div>
 </div>
 
@@ -144,7 +187,10 @@
     </select>
   </div>
   <div class="memory-badge" id="memoryBadge"></div>
-  <button class="archive-btn" id="archiveBtn" onclick="archiveConversation()">✦ In Claude archivieren</button>
+  <div class="action-row">
+    <button class="action-btn" id="downloadBtn" onclick="downloadTranscript()">↓ Transcript</button>
+    <button class="action-btn" id="archiveBtn" onclick="archiveConversation()">✦ In Claude archivieren</button>
+  </div>
 </div>
 
 <script>
@@ -155,47 +201,120 @@ const IS_MOBILE = IS_ANDROID || IS_IOS;
 document.getElementById('platformBadge').textContent =
   IS_ANDROID ? '📱 Android' : IS_IOS ? '📱 iOS' : '🖥 Desktop';
 
-// ── System Prompt ────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Du bist Neugiergeist — ein kritischer, direkter und humorvoller Gesprächspartner für Max. Du sprichst ausschließlich Deutsch. Deine Antworten werden vorgelesen (Text-to-Speech), daher gelten folgende Regeln:
+// ── Mode Definitions ─────────────────────────────────────────────────────────
+const MODES = {
+  walking: {
+    label: '🚶 Walking Mode',
+    instruction: `AKTIVER MODUS: WALKING MODE.
+Antworte in kurzer, natürlicher Prosa. Keine Aufzählungen, keine Formatierung, keine Symbole.
+Maximal 3 Ideen pro Antwort. Komm sofort zum Punkt. Optimiert zum Zuhören, nicht zum Lesen.`
+  },
+  devils: {
+    label: '😈 Devil\'s Advocate',
+    instruction: `AKTIVER MODUS: DEVIL'S ADVOCATE.
+Nimm grundsätzlich die Gegenposition ein. Stelle Annahmen in Frage. Zeige das stärkste Argument für die andere Seite.
+Kurze, präzise Gegenargumente. Keine langen Erklärungen — provoziere zum Denken.`
+  },
+  explorer: {
+    label: '🌀 Explorer Mode',
+    instruction: `AKTIVER MODUS: EXPLORER MODE.
+Denke in "Was wäre wenn"-Szenarien. Stelle Problemklarheit vor Lösungen.
+Erkunde unerwartete Winkel. Frage zurück bevor du antwortest. Öffne den Raum, schliesse ihn nicht.`
+  },
+  coach: {
+    label: '🎯 Coach Mode',
+    instruction: `AKTIVER MODUS: COACH MODE.
+Gib keine direkten Antworten. Stelle nur Fragen. Führe Max durch Fragen zur eigenen Erkenntnis.
+Eine Frage pro Antwort. Präzise, tiefgehende Fragen — keine oberflächlichen.`
+  },
+  simplifier: {
+    label: '🔪 Simplifier Mode',
+    instruction: `AKTIVER MODUS: SIMPLIFIER MODE.
+Reduziere alles auf das Wesentliche. Was kann weggelassen werden? Was ist der einfachste Weg?
+Kürzer ist besser. Streiche Komplexität radikal zusammen.`
+  },
+  hats: {
+    label: '🎩 Hats Mode',
+    instruction: `AKTIVER MODUS: HATS MODE.
+Betrachte das Thema aus 2-3 klar verschiedenen Perspektiven (z.B. Optimist / Skeptiker / Pragmatiker).
+Benenne jede Perspektive kurz. Halte jede auf 1-2 Sätze. Synthetisiere am Ende nicht — lass Max entscheiden.`
+  },
+  focus: {
+    label: '🔦 Focus Mode',
+    instruction: `AKTIVER MODUS: FOCUS MODE.
+Ein Thema auf einmal. Beim Erkunden: maximal 2 Aspekte. Beim Vertiefen: nur 1.
+Wenn Max abschweift, bring ihn zurück zum Kernthema.`
+  },
+  artifact: {
+    label: '📄 Artifact Mode',
+    instruction: `AKTIVER MODUS: ARTIFACT MODE.
+Baue ein strukturiertes Dokument auf. Nur bestätigte Ideen werden aufgenommen.
+Fasse nach jedem Block zusammen was bisher im Dokument steht. Frage vor dem Hinzufügen neuer Punkte.`
+  }
+};
 
-WALKING MODE (immer aktiv):
-- Antworte in kurzer, natürlicher Prosa — keine Aufzählungen, keine Formatierung, keine Symbole
-- Maximal 2-3 Ideen pro Antwort, nummeriert wenn nötig
-- Komm sofort zum Punkt — kein Vorgeplänkel, kein Spiegeln der Frage
-- Optimiert zum Zuhören, nicht zum Lesen
+let activeMode = 'walking';
 
-PERSÖNLICHKEIT & STIL:
-- Sei direkt, präzise und zeige echte Begeisterung für Ideen
-- Sei kritischer Sparringspartner — kein zustimmender Assistent
+function setMode(chip) {
+  document.querySelectorAll('.mode-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeMode = chip.dataset.mode;
+  document.getElementById('modeBadge').textContent = MODES[activeMode].label;
+}
+
+// Init mode badge
+document.getElementById('modeBadge').textContent = MODES[activeMode].label;
+
+// ── System Prompt Builder ────────────────────────────────────────────────────
+function buildSystemPrompt() {
+  return `Du bist Neugiergeist — Max's persönlicher mobiler Gesprächspartner und kritischer Sparringspartner. Du sprichst standardmäßig Deutsch, wechselst zu Englisch wenn Max auf Englisch spricht. Deine Antworten werden vorgelesen (Text-to-Speech).
+
+KONTEXT ZU MAX:
+Max ist Banker in Frankfurt, handelt Optionen, betreibt eine Vermögensverwaltungs-GmbH. Wohnt am Ammersee (Utting). Intellektuell neugierig mit Tiefgang: Naturwissenschaften, Geschichte, Geopolitik, Philosophie, Psychologie, Wirtschaft, Technologie. Nutzt Claude intensiv für Quant-Finance, Workflows, kreative Projekte.
+
+${MODES[activeMode].instruction}
+
+PERSÖNLICHKEIT & STIL (immer aktiv):
+- Kritischer Sparringspartner, kein zustimmender Assistent
 - Benenne Denkfehler und Annahmen von Max offen
 - Priorisiere Faktengenauigkeit über Enthusiasmus
-- Stelle am Ende oft eine Gegenfrage, um das Gespräch am Laufen zu halten
+- Kein Loben, kein Schmeicheln ("Gute Frage!" etc.)
+- Direkt zum Punkt — kein Vorgeplänkel
 
 RÜCKFRAGEN (Clarify):
-- Stelle eine Rückfrage, wenn zusätzlicher Kontext deine Antwort deutlich verbessern würde
-- Nur eine Frage pro Mal — nie mehrere auf einmal
+- Eine Rückfrage wenn Kontext die Antwort deutlich verbessert
+- Nie mehrere Fragen gleichzeitig
 
 PRÄZISION (Surgical Specificity):
-- Nutze Frameworks, Forschung, Daten, Autorennamen, Fakten wo relevant
-- Zerlege Ideen in Variablen und Muster
-- Biete verschiedene Perspektiven an
+- Frameworks, Forschung, Autorennamen, Fakten wo relevant
+- Ideen in Variablen und Muster zerlegen
+- Verschiedene Perspektiven anbieten
 
 ANTI-HALLUZINATION (immer aktiv):
-- Bei Fakten über Tech-Tools, APIs, aktuelle Ereignisse oder schnell ändernde Themen: sage explizit wenn du unsicher bist
-- Verwende Formulierungen wie "Ich bin mir nicht sicher, aber..." oder "Das solltest du verifizieren..."
-- Eine ehrlich unsichere Antwort ist immer besser als eine selbstsicher falsche
-- Erfinde keine API-Parameter, Feature-Namen, Preise oder Integrations-Claims
+- Bei Tech-Tools, APIs, aktuellen Ereignissen: explizit sagen wenn unsicher
+- Formulierungen: "Ich bin mir nicht sicher, aber..." oder "Das solltest du verifizieren..."
+- Konfidenz-Score wenn unter 90% sicher
+- Keine API-Parameter, Feature-Namen oder Integrations-Claims erfinden
 
-THEMEN:
-- Naturwissenschaften, Geschichte, Geopolitik, Philosophie, Psychologie, Wirtschaft, Technologie
-- Max ist Banker in Deutschland (Frankfurt), handelt Optionen, betreibt eine Vermögensverwaltungs-GmbH, ist intellektuell neugierig mit Tiefgang
+VOICE-RUBEN SKILL (aktivieren wenn Max LinkedIn-Post, Newsletter oder Content im Stil von Ruben Hassid anfagt):
+- Struktur: Pain → Diagnosis → Solution → Empowerment
+- Keine Emojis, kein Hype, keine Versprechen über Geld/Follower
+- Kernüberzeugung einbetten: "AI is average. Your taste is the differentiator."
+- Kernidentität: nicht-technischer Guy der es herausgefunden hat, Wahrheitsmaschine
+
+MODES SKILL (verfügbare Modi — Max kann jederzeit wechseln):
+Walking, Devil's Advocate, Explorer, Coach, Simplifier, Hats, Focus, Artifact
+Wenn Max "Wechsle in [Modus]" sagt, bestätige kurz und passe Verhalten sofort an.
+
+AM KONVERSATIONSENDE:
+Prüfe ob etwas als Memory-Eintrag, Skill-Update, Projekt-Update oder Transcript-Transfer zu Claude.ai sinnvoll wäre. Wenn ja: einzeiligen Hinweis aussprechen.
 
 VERBOTEN in Antworten:
 - Keine Emojis oder Sonderzeichen
 - Keine Markdown-Formatierung (kein **, keine #, keine - Listen)
-- Keine Quellenangaben oder Zitate beim Vorlesen
-- Kein Loben oder Schmeicheln ("Gute Frage!" etc.)
+- Kein Loben oder Schmeicheln
 - Keine langen Einleitungen`;
+}
 
 // ── Config ───────────────────────────────────────────────────────────────────
 const MAX_HISTORY = 6;
@@ -213,6 +332,30 @@ let silenceTimeout = parseInt(localStorage.getItem('ng_silence') || '5000');
 let silenceTimer = null;
 let countdownInterval = null;
 const synth = window.speechSynthesis;
+
+// ── Transcript ───────────────────────────────────────────────────────────────
+let transcriptLines = [];
+
+function addToTranscript(role, text) {
+  const ts = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  transcriptLines.push(`[${ts}] ${role === 'user' ? 'Max' : 'Neugiergeist'}: ${text}`);
+}
+
+function downloadTranscript() {
+  if (transcriptLines.length === 0) return;
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10);
+  const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
+  const filename = `neugiergeist_${dateStr}_${timeStr}.md`;
+  const modeLabel = MODES[activeMode].label.replace(/[^\w\s-]/g, '').trim();
+  const header = `# Neugiergeist Transcript\nDatum: ${now.toLocaleDateString('de-DE')}, ${now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'})}\nModus: ${modeLabel}\n\n---\n\n`;
+  const content = header + transcriptLines.join('\n\n');
+  const blob = new Blob([content], { type: 'text/markdown; charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 window.onload = () => {
@@ -242,7 +385,6 @@ function updateSpeed(val) {
   localStorage.setItem('ng_speed', speechRate);
   document.getElementById('speedVal').textContent = speechRate.toFixed(1) + '×';
 }
-
 function updateSilenceTimeout(val) {
   silenceTimeout = parseInt(val);
   localStorage.setItem('ng_silence', silenceTimeout);
@@ -252,9 +394,11 @@ function updateSilenceTimeout(val) {
 function updateMemoryBadge() {
   const count = Math.floor(messages.length / 2);
   document.getElementById('memoryBadge').textContent = count > 0 ? `${count} Gespräche gespeichert` : '';
-  if (messages.length >= 2) document.getElementById('archiveBtn').classList.add('visible');
+  if (messages.length >= 2) {
+    document.getElementById('downloadBtn').classList.add('visible');
+    document.getElementById('archiveBtn').classList.add('visible');
+  }
 }
-
 function saveHistory() {
   messages = messages.slice(-MAX_HISTORY);
   localStorage.setItem('ng_history', JSON.stringify(messages));
@@ -290,7 +434,6 @@ function startCountdownRing(durationMs) {
     if (progress >= 1) stopCountdownRing();
   }, 50);
 }
-
 function stopCountdownRing() {
   clearInterval(countdownInterval);
   countdownInterval = null;
@@ -301,11 +444,7 @@ function stopCountdownRing() {
 }
 
 // ── Silence Detection ─────────────────────────────────────────────────────────
-function resetSilenceTimer() {
-  clearTimeout(silenceTimer);
-  stopCountdownRing();
-}
-
+function resetSilenceTimer() { clearTimeout(silenceTimer); stopCountdownRing(); }
 function armSilenceTimer() {
   resetSilenceTimer();
   startCountdownRing(silenceTimeout);
@@ -332,13 +471,11 @@ function toggleListening() {
 function startListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { showError('Web Speech API nicht unterstützt. Bitte Chrome verwenden.'); return; }
-
   recognition = new SR();
   recognition.lang = 'de-DE';
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
   recognition.continuous = false;
-
   recognition.onstart = () => {
     isListening = true;
     setMic('listening');
@@ -346,10 +483,8 @@ function startListening() {
     hideError();
     armSilenceTimer();
   };
-
   recognition.onspeechstart = () => { resetSilenceTimer(); };
   recognition.onspeechend = () => { armSilenceTimer(); };
-
   recognition.onresult = (e) => {
     const isFinal = e.results[e.results.length - 1].isFinal;
     if (!isFinal) { resetSilenceTimer(); return; }
@@ -358,11 +493,11 @@ function startListening() {
     resetSilenceTimer();
     isListening = false;
     addMsg('user', text);
+    addToTranscript('user', text);
     setMic('thinking');
     setStatus('Denkt nach…', '');
     askClaude(text);
   };
-
   recognition.onerror = (e) => {
     resetSilenceTimer();
     isListening = false;
@@ -375,12 +510,10 @@ function startListening() {
       setStatus('Bereit', '');
     }
   };
-
   recognition.onend = () => {
     resetSilenceTimer();
     if (isListening) { isListening = false; setMic('idle'); setStatus('Bereit', ''); }
   };
-
   try { recognition.start(); }
   catch(e) { showError('Mikrofon konnte nicht gestartet werden: ' + e.message); }
 }
@@ -400,7 +533,7 @@ async function askClaude(userText) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 600,
-        system: SYSTEM_PROMPT,
+        system: buildSystemPrompt(),
         tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }],
         messages: messages
       })
@@ -414,6 +547,7 @@ async function askClaude(userText) {
     messages.push({ role: 'assistant', content: data.content });
     saveHistory();
     addMsg('assistant', reply);
+    addToTranscript('assistant', reply);
     speak(reply);
   } catch(e) {
     setMic('idle');
@@ -423,9 +557,7 @@ async function askClaude(userText) {
 }
 
 // ── TTS ───────────────────────────────────────────────────────────────────────
-// Split text into sentences for Android TTS stability
 function splitSentences(text) {
-  // Split on sentence-ending punctuation, keep delimiter
   const raw = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
   return raw.map(s => s.trim()).filter(s => s.length > 0);
 }
@@ -433,7 +565,6 @@ function splitSentences(text) {
 function speak(text) {
   synth.cancel();
   const chunks = IS_MOBILE ? splitSentences(text) : [text];
-  let chunkIndex = 0;
   let cancelled = false;
 
   const getVoice = () => {
@@ -456,14 +587,12 @@ function speak(text) {
       }
       return;
     }
-
     const utt = new SpeechSynthesisUtterance(chunks[index]);
     utt.lang = 'de-DE';
     utt.rate = speechRate;
     utt.pitch = 1.0;
     const voice = getVoice();
     if (voice) utt.voice = voice;
-
     if (index === 0) {
       utt.onstart = () => {
         isSpeaking = true;
@@ -472,22 +601,15 @@ function speak(text) {
         document.getElementById('stopBtn').classList.add('visible');
       };
     }
-
-    utt.onend = () => {
-      if (!cancelled) speakChunk(index + 1);
-    };
-
+    utt.onend = () => { if (!cancelled) speakChunk(index + 1); };
     utt.onerror = (e) => {
       if (e.error === 'interrupted' || e.error === 'canceled') {
-        cancelled = true;
-        isSpeaking = false;
+        cancelled = true; isSpeaking = false;
         document.getElementById('stopBtn').classList.remove('visible');
         return;
       }
-      // On error mid-chunk, try next chunk anyway
       if (!cancelled) speakChunk(index + 1);
     };
-
     synth.speak(utt);
   };
 
@@ -510,7 +632,7 @@ function stopSpeaking() {
 // ── Archive ───────────────────────────────────────────────────────────────────
 async function archiveConversation() {
   const btn = document.getElementById('archiveBtn');
-  btn.textContent = '⏳ Zusammenfassung wird erstellt…';
+  btn.textContent = '⏳ Zusammenfassung…';
   btn.classList.add('loading');
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -524,12 +646,12 @@ async function archiveConversation() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 600,
-        messages: [...messages, { role: 'user', content: 'Fasse unser heutiges Gespräch in 3-5 Sätzen zusammen. Beginne mit "Gesprächsarchiv Neugiergeist:" und nenne die wichtigsten Themen. Schreibe auf Deutsch, ohne Formatierung.' }]
+        messages: [...messages, { role: 'user', content: 'Fasse unser heutiges Gespräch in 3-5 Sätzen zusammen. Beginne mit "Gesprächsarchiv Neugiergeist:" und nenne die wichtigsten Themen und Erkenntnisse. Schreibe auf Deutsch, ohne Formatierung.' }]
       })
     });
     const data = await res.json();
     await navigator.clipboard.writeText(data.content[0].text);
-    btn.textContent = '✓ Kopiert — Archiv öffnet sich…';
+    btn.textContent = '✓ Kopiert — öffnet Claude…';
     setTimeout(() => window.open('https://claude.ai/chat/36e30c18-9d28-438c-a143-78f8cc15cee0', '_blank'), 800);
   } catch(e) {
     showError('Archivierung fehlgeschlagen: ' + e.message);
@@ -549,26 +671,21 @@ function addMsg(role, text) {
   conv.appendChild(div);
   conv.scrollTop = conv.scrollHeight;
 }
-
 function setMic(state) {
   document.getElementById('micBtn').className = 'mic-btn' + (state !== 'idle' ? ' ' + state : '');
 }
-
 function setStatus(text, cls) {
   const el = document.getElementById('statusText');
   el.textContent = text;
   el.className = 'status-text' + (cls ? ' ' + cls : '');
 }
-
 function showError(msg) {
   const el = document.getElementById('errorBox');
   el.textContent = msg;
   el.classList.add('visible');
 }
-
 function hideError() {
-  document.getElementById('errorBox').classList.remove('visible');
-}
+  document.getElementById('errorBox').classList.remove('visible'); }
 
 if (typeof speechSynthesis !== 'undefined') {
   speechSynthesis.onvoiceschanged = () => {};
