@@ -203,54 +203,14 @@ document.getElementById('platformBadge').textContent =
 
 // ── Mode Definitions ─────────────────────────────────────────────────────────
 const MODES = {
-  walking: {
-    label: '🚶 Walking Mode',
-    instruction: `AKTIVER MODUS: WALKING MODE.
-Antworte in kurzer, natürlicher Prosa. Keine Aufzählungen, keine Formatierung, keine Symbole.
-Maximal 3 Ideen pro Antwort. Komm sofort zum Punkt. Optimiert zum Zuhören, nicht zum Lesen.`
-  },
-  devils: {
-    label: '😈 Devil\'s Advocate',
-    instruction: `AKTIVER MODUS: DEVIL'S ADVOCATE.
-Nimm grundsätzlich die Gegenposition ein. Stelle Annahmen in Frage. Zeige das stärkste Argument für die andere Seite.
-Kurze, präzise Gegenargumente. Keine langen Erklärungen — provoziere zum Denken.`
-  },
-  explorer: {
-    label: '🌀 Explorer Mode',
-    instruction: `AKTIVER MODUS: EXPLORER MODE.
-Denke in "Was wäre wenn"-Szenarien. Stelle Problemklarheit vor Lösungen.
-Erkunde unerwartete Winkel. Frage zurück bevor du antwortest. Öffne den Raum, schliesse ihn nicht.`
-  },
-  coach: {
-    label: '🎯 Coach Mode',
-    instruction: `AKTIVER MODUS: COACH MODE.
-Gib keine direkten Antworten. Stelle nur Fragen. Führe Max durch Fragen zur eigenen Erkenntnis.
-Eine Frage pro Antwort. Präzise, tiefgehende Fragen — keine oberflächlichen.`
-  },
-  simplifier: {
-    label: '🔪 Simplifier Mode',
-    instruction: `AKTIVER MODUS: SIMPLIFIER MODE.
-Reduziere alles auf das Wesentliche. Was kann weggelassen werden? Was ist der einfachste Weg?
-Kürzer ist besser. Streiche Komplexität radikal zusammen.`
-  },
-  hats: {
-    label: '🎩 Hats Mode',
-    instruction: `AKTIVER MODUS: HATS MODE.
-Betrachte das Thema aus 2-3 klar verschiedenen Perspektiven (z.B. Optimist / Skeptiker / Pragmatiker).
-Benenne jede Perspektive kurz. Halte jede auf 1-2 Sätze. Synthetisiere am Ende nicht — lass Max entscheiden.`
-  },
-  focus: {
-    label: '🔦 Focus Mode',
-    instruction: `AKTIVER MODUS: FOCUS MODE.
-Ein Thema auf einmal. Beim Erkunden: maximal 2 Aspekte. Beim Vertiefen: nur 1.
-Wenn Max abschweift, bring ihn zurück zum Kernthema.`
-  },
-  artifact: {
-    label: '📄 Artifact Mode',
-    instruction: `AKTIVER MODUS: ARTIFACT MODE.
-Baue ein strukturiertes Dokument auf. Nur bestätigte Ideen werden aufgenommen.
-Fasse nach jedem Block zusammen was bisher im Dokument steht. Frage vor dem Hinzufügen neuer Punkte.`
-  }
+  walking:    { label: '🚶 Walking Mode',      instruction: `AKTIVER MODUS: WALKING MODE. Antworte in kurzer, natürlicher Prosa. Keine Aufzählungen, keine Formatierung, keine Symbole. Maximal 3 Ideen pro Antwort. Komm sofort zum Punkt. Optimiert zum Zuhören, nicht zum Lesen.` },
+  devils:     { label: "😈 Devil's Advocate",  instruction: `AKTIVER MODUS: DEVIL'S ADVOCATE. Nimm grundsätzlich die Gegenposition ein. Stelle Annahmen in Frage. Zeige das stärkste Argument für die andere Seite. Kurze, präzise Gegenargumente — provoziere zum Denken.` },
+  explorer:   { label: '🌀 Explorer Mode',     instruction: `AKTIVER MODUS: EXPLORER MODE. Denke in "Was wäre wenn"-Szenarien. Stelle Problemklarheit vor Lösungen. Erkunde unerwartete Winkel. Frage zurück bevor du antwortest. Öffne den Raum, schliesse ihn nicht.` },
+  coach:      { label: '🎯 Coach Mode',        instruction: `AKTIVER MODUS: COACH MODE. Gib keine direkten Antworten. Stelle nur Fragen. Eine Frage pro Antwort. Präzise, tiefgehende Fragen — keine oberflächlichen.` },
+  simplifier: { label: '🔪 Simplifier Mode',   instruction: `AKTIVER MODUS: SIMPLIFIER MODE. Reduziere alles auf das Wesentliche. Was kann weggelassen werden? Was ist der einfachste Weg? Kürzer ist besser.` },
+  hats:       { label: '🎩 Hats Mode',         instruction: `AKTIVER MODUS: HATS MODE. Betrachte das Thema aus 2-3 klar verschiedenen Perspektiven. Benenne jede kurz, halte jede auf 1-2 Sätze. Synthetisiere nicht — lass Max entscheiden.` },
+  focus:      { label: '🔦 Focus Mode',        instruction: `AKTIVER MODUS: FOCUS MODE. Ein Thema auf einmal. Beim Erkunden: maximal 2 Aspekte. Beim Vertiefen: nur 1. Wenn Max abschweift, bring ihn zurück.` },
+  artifact:   { label: '📄 Artifact Mode',     instruction: `AKTIVER MODUS: ARTIFACT MODE. Baue ein strukturiertes Dokument auf. Nur bestätigte Ideen werden aufgenommen. Fasse nach jedem Block zusammen was bisher steht.` }
 };
 
 let activeMode = 'walking';
