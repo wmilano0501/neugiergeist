@@ -467,7 +467,11 @@ function startListening() {
     armSilenceTimer();
   };
   recognition.onspeechstart = () => { resetSilenceTimer(); };
-  recognition.onspeechend = () => { armSilenceTimer(); };
+  recognition.onspeechend = () => {
+    // On Android, onspeechend fires on short within-sentence pauses.
+    // Only arm the silence timer after a minimum 1.5s grace period.
+    setTimeout(() => { if (isListening) armSilenceTimer(); }, 1500);
+  };
   recognition.onresult = (e) => {
     const isFinal = e.results[e.results.length - 1].isFinal;
     if (!isFinal) { resetSilenceTimer(); return; }
