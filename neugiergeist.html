@@ -105,6 +105,18 @@
   .context-name { flex: 1; font-size: 0.72rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .context-name.loaded { color: var(--green); }
   .context-clear { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: transparent; font-size: 0.7rem; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; touch-action: manipulation; }
+
+  /* Transcript Modal */
+  .transcript-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; justify-content: center; padding: 1rem; }
+  .transcript-modal.visible { display: flex; }
+  .transcript-modal-inner { background: white; border-radius: 16px 16px 12px 12px; width: 100%; max-width: 480px; padding: 1.2rem; box-shadow: 0 -4px 24px rgba(0,0,0,0.15); }
+  .transcript-modal-inner h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--ink); }
+  .transcript-textarea { width: 100%; height: 180px; border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; line-height: 1.5; color: var(--ink); background: var(--paper); resize: none; outline: none; -webkit-user-select: text; user-select: text; }
+  .transcript-modal-btns { display: flex; gap: 0.6rem; margin-top: 0.8rem; }
+  .transcript-copy-btn { flex: 1; padding: 0.65rem; background: var(--ink); color: var(--paper); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; touch-action: manipulation; }
+  .transcript-copy-btn:active { background: var(--accent); }
+  .transcript-close-btn { padding: 0.65rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--muted); cursor: pointer; touch-action: manipulation; }
+
   @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(200,87,26,0.3); } 50% { box-shadow: 0 0 0 14px rgba(200,87,26,0); } }
   @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
 </style>
@@ -205,8 +217,20 @@
   </div>
   <div class="memory-badge" id="memoryBadge"></div>
   <div class="action-row">
-    <button class="action-btn" id="downloadBtn" onclick="downloadTranscript()">↓ Transcript</button>
+    <button class="action-btn" id="downloadBtn" onclick="showTranscript()">📋 Transcript</button>
     <button class="action-btn" id="archiveBtn" onclick="archiveConversation()">✦ In Claude archivieren</button>
+  </div>
+</div>
+
+<!-- Transcript Modal -->
+<div class="transcript-modal" id="transcriptModal" onclick="closeTranscriptOnBackdrop(event)">
+  <div class="transcript-modal-inner">
+    <h3>Transcript kopieren</h3>
+    <textarea class="transcript-textarea" id="transcriptText" readonly></textarea>
+    <div class="transcript-modal-btns">
+      <button class="transcript-copy-btn" id="transcriptCopyBtn" onclick="copyTranscript()">📋 In Zwischenablage kopieren</button>
+      <button class="transcript-close-btn" onclick="closeTranscript()">Schließen</button>
+    </div>
   </div>
 </div>
 
@@ -266,7 +290,6 @@ function clearContext() {
   document.getElementById('contextFile').value = '';
 }
 
-// Init mode badge
 document.getElementById('modeBadge').textContent = MODES[activeMode].label;
 
 // ── System Prompt Builder ────────────────────────────────────────────────────
@@ -324,20 +347,52 @@ function addToTranscript(role, text) {
   transcriptLines.push(`[${ts}] ${role === 'user' ? 'Max' : 'Neugiergeist'}: ${text}`);
 }
 
-function downloadTranscript() {
-  if (transcriptLines.length === 0) return;
+function buildTranscriptText() {
+  if (transcriptLines.length === 0) return '';
   const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10);
-  const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
-  const filename = `neugiergeist_${dateStr}_${timeStr}.md`;
   const modeLabel = MODES[activeMode].label.replace(/[^\w\s-]/g, '').trim();
   const header = `# Neugiergeist Transcript\nDatum: ${now.toLocaleDateString('de-DE')}, ${now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'})}\nModus: ${modeLabel}\n\n---\n\n`;
-  const content = header + transcriptLines.join('\n\n');
-  const blob = new Blob([content], { type: 'text/markdown; charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
+  return header + transcriptLines.join('\n\n');
+}
+
+// ── Transcript Modal ─────────────────────────────────────────────────────────
+function showTranscript() {
+  if (transcriptLines.length === 0) return;
+  document.getElementById('transcriptText').value = buildTranscriptText();
+  document.getElementById('transcriptCopyBtn').textContent = '📋 In Zwischenablage kopieren';
+  document.getElementById('transcriptModal').classList.add('visible');
+}
+
+function closeTranscript() {
+  document.getElementById('transcriptModal').classList.remove('visible');
+}
+
+function closeTranscriptOnBackdrop(e) {
+  if (e.target === document.getElementById('transcriptModal')) closeTranscript();
+}
+
+async function copyTranscript() {
+  const text = document.getElementById('transcriptText').value;
+  const btn = document.getElementById('transcriptCopyBtn');
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = '✓ Kopiert!';
+    setTimeout(() => { btn.textContent = '📋 In Zwischenablage kopieren'; }, 2000);
+  } catch(e) {
+    // Fallback: select all text in textarea so user can copy manually
+    const ta = document.getElementById('transcriptText');
+    ta.removeAttribute('readonly');
+    ta.select();
+    ta.setSelectionRange(0, 99999);
+    try {
+      document.execCommand('copy');
+      btn.textContent = '✓ Kopiert!';
+      setTimeout(() => { btn.textContent = '📋 In Zwischenablage kopieren'; }, 2000);
+    } catch(e2) {
+      btn.textContent = '👆 Manuell markieren & kopieren';
+    }
+    ta.setAttribute('readonly', true);
+  }
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
@@ -468,8 +523,6 @@ function startListening() {
   };
   recognition.onspeechstart = () => { resetSilenceTimer(); };
   recognition.onspeechend = () => {
-    // On Android, onspeechend fires on short within-sentence pauses.
-    // Only arm the silence timer after a minimum 1.5s grace period.
     setTimeout(() => { if (isListening) armSilenceTimer(); }, 1500);
   };
   recognition.onresult = (e) => {
@@ -672,7 +725,8 @@ function showError(msg) {
   el.classList.add('visible');
 }
 function hideError() {
-  document.getElementById('errorBox').classList.remove('visible'); }
+  document.getElementById('errorBox').classList.remove('visible');
+}
 
 if (typeof speechSynthesis !== 'undefined') {
   speechSynthesis.onvoiceschanged = () => {};
